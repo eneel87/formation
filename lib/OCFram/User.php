@@ -33,6 +33,11 @@ class User
     $_SESSION[$attr] = $value;
   }
 
+  public function unsetAttribute($attr)
+  {
+    unset($_SESSION[$attr]);
+  }
+
   public function setAuthenticated($authenticated = true)
   {
     if (!is_bool($authenticated))

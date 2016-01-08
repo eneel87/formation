@@ -55,6 +55,8 @@ class ConnexionController extends BackController
   public  function executeDeconnexion(HTTPRequest $request){
 
     $this->app->user()->setAuthenticated(false);
+    $this->app->user()->unsetAttribute('admin');
+    $this->app->user()->setFlash('Vous avez été correctement déconnecté.');
     $this->app->httpResponse()->redirect('/');
 
   }
