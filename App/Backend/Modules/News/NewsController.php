@@ -7,7 +7,9 @@ use \Entity\News;
 use \Entity\Comment;
 use \FormBuilder\CommentFormBuilder;
 use \FormBuilder\NewsFormBuilder;
+use \FormBuilder\UserFormBuilder;
 use \OCFram\FormHandler;
+use \Entity\User;
 
 class NewsController extends BackController
 {
@@ -24,7 +26,7 @@ class NewsController extends BackController
   public function executeDelete(HTTPRequest $request)
   {
     $newsId = $request->getData('id');
-    
+
     $this->managers->getManagerOf('News')->delete($newsId);
     $this->managers->getManagerOf('Comments')->deleteFromNews($newsId);
 
@@ -39,6 +41,60 @@ class NewsController extends BackController
     $this->processForm($request);
 
     $this->page->addVar('title', 'Ajout d\'une news');
+  }
+
+  public function executeInsertUser(HTTPRequest $request)
+  {
+    $this->page->addVar('title', 'Ajout d\'un utilisateur');
+
+    $this->processUserForm($request);
+  }
+
+  public function processUserForm(HTTPRequest $request)
+  {
+    if ($request->method() == "POST")
+    {
+      $user = new User([
+          'login' => $request->postData('login'),
+          'password' => $request->postData('password'),
+          'level' => $request->postData('level')
+      ]);
+
+      if ($request->getExists('id'))
+      {
+        $user->setId($request->getData('id'));
+      }
+    }
+    else
+    {
+      // L'identifiant de l'utilisateur est transmis si on veut le modifier
+      if ($request->getExists('id'))
+      {
+        $user = $this->managers->getManagerOf('User')->getUnique($request->getData('id'));
+      }
+      else
+      {
+        $user = new User;
+      }
+    }
+
+    $formBuilder = new UserFormBuilder($user);
+    $formBuilder->build();
+
+    $form = $formBuilder->form();
+
+    // On récupère le gestionnaire de formulaire (le paramètre de getManagerOf() est bien entendu à remplacer).
+    $formHandler = new \OCFram\FormHandler($form, $this->managers->getManagerOf('User'), $request);
+
+    if ($formHandler->process())
+    {
+      // Ici ne résident plus que les opérations à effectuer une fois l'entité du formulaire enregistrée
+      // (affichage d'un message informatif, redirection, etc.).
+      $this->app->user()->setFlash($user->isNew() ? 'L \'utilisateur a bien été ajouté !' : 'L\'utiilsateur a bien été modifié !');
+      $this->app->httpResponse()->redirect('/admin/');
+    }
+
+    $this->page->addVar('form', $form->createView());
   }
 
   public function executeUpdate(HTTPRequest $request)
@@ -80,7 +136,7 @@ class NewsController extends BackController
     $this->page->addVar('form', $form->createView());
   }
 
-  public function processForm(HTTPRequest $request)
+  public function processform(HTTPRequest $request)
   {
     if ($request->method() == 'POST')
     {
