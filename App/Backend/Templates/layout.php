@@ -25,8 +25,8 @@
           <?php if ($user->isAuthenticated()) { ?>
           <li><a href="/admin/">Administration</a></li>
           <?php if($user->getAttribute('admin')->level()==1){ ?>
-          <li><a href="/admin/user-insert.html">Ajouter un utilisateur</a></li><?php } ?>
-          <li><a href="/admin/news-insert.html">Ajouter une news</a></li>
+          <li><a href="/admin/members.html">Gestion des utilisateurs</a></li><?php } ?>
+          <li><a href="/admin/news.html">Gestion des news</a></li>
           <li><a href="/admin/deconnexion.html">Déconnexion de <?php echo $user->getAttribute('admin')->login(); } ?></a></li>
 
         </ul>

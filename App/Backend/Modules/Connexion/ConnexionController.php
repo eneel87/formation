@@ -1,9 +1,10 @@
 <?php
 namespace App\Backend\Modules\Connexion;
 
+use Model\MemberManager;
 use \OCFram\BackController;
 use \OCFram\HTTPRequest;
-use \Entity\User;
+use \Entity\Member;
 
 
 
@@ -18,14 +19,14 @@ class ConnexionController extends BackController
 
     if ($request->postExists('login'))
     {
-      $manager = $this->managers->getManagerOf('User');
+      /** @var MemberManager $MemberManager */
+      $MemberManager = $this->managers->getManagerOf('Member');
 
-      $user = $manager->getUserUsingLoginAndPassword($request->postData('login'), $request->postData('password'));
-
-      if($user->level()<= self::LEVEL_AUTHORISATION)
+      $Member = $MemberManager->getMemberUsingLoginAndPassword($request->postData('login'), $request->postData('password'));
+      if($Member && $Member->level()<= self::LEVEL_AUTHORISATION)
       {
         $this->app->user()->setAuthenticated(true);
-        $this->app->user()->setAttribute('admin', $user);
+        $this->app->user()->setAttribute('admin', $Member);
         $this->app->httpResponse()->redirect('.');
       }
       else

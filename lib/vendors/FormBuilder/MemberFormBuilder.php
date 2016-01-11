@@ -4,7 +4,7 @@ namespace FormBuilder;
 use \OCFram\FormBuilder;
 use \OCFram\StringField;
 
-class UserFormBuilder extends FormBuilder
+class MemberFormBuilder extends FormBuilder
 {
     public function build()
     {

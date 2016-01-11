@@ -1,6 +1,7 @@
 <?php
 namespace App\Frontend\Modules\News;
 
+use Model\NewsManager;
 use \OCFram\BackController;
 use \OCFram\HTTPRequest;
 use \Entity\Comment;
@@ -20,6 +21,7 @@ class NewsController extends BackController
     $this->page->addVar('title', 'Liste des '.$nombreNews.' dernières news');
     
     // On récupère le manager des news.
+    /** @var NewsManager $manager */
     $manager = $this->managers->getManagerOf('News');
     
     // Cette ligne, vous ne pouviez pas la deviner sachant qu'on n'a pas encore touché au modèle.
@@ -51,6 +53,7 @@ class NewsController extends BackController
     {
       $this->app->httpResponse()->redirect404();
     }
+
     
     $this->page->addVar('title', $news->titre());
     $this->page->addVar('news', $news);

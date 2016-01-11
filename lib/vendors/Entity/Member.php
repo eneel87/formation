@@ -3,11 +3,14 @@ namespace Entity;
 
 use \OCFram\Entity;
 
-class User extends Entity
+class Member extends Entity
 {
     protected $login,
               $password,
-              $level;
+              $level,
+              $dateAjout,
+              $dateModif;
+
 
     const LOGIN_INVALIDE = 1;
     const PASSWORD_INVALIDE = 2;
@@ -50,6 +53,16 @@ class User extends Entity
         $this->level = $lev;
     }
 
+    public function setDateAjout(\DateTime $dateAjout)
+    {
+        $this->dateAjout = $dateAjout;
+    }
+
+    public function setDateModif(\DateTime $dateModif)
+    {
+        $this->dateModif = $dateModif;
+    }
+
     public function login()
     {
         return $this->login;
@@ -63,5 +76,15 @@ class User extends Entity
     public function level()
     {
         return $this->level;
+    }
+
+    public function dateAjout()
+    {
+        return $this->dateAjout;
+    }
+
+    public function dateModif()
+    {
+        return $this->dateModif;
     }
 }

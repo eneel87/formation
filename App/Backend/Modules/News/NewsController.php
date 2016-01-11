@@ -17,10 +17,24 @@ class NewsController extends BackController
   {
     $this->page->addVar('title', 'Gestion des news');
 
-    $manager = $this->managers->getManagerOf('News');
+    $ManagerNews = $this->managers->getmanagerof('news');
+    $MemberManager = $this->managers->getmanagerof('member');
 
-    $this->page->addVar('listeNews', $manager->getList());
-    $this->page->addVar('nombreNews', $manager->count());
+    if($this->app->user()->getAttribute('admin')->level()== $MemberManager::ADMINISTRATOR)
+    {
+      $this->page->addvar('listeNews', $ManagerNews->getlist());
+      $this->page->addvar('nombreNews', $ManagerNews->count());
+    }
+    else
+    {
+      $nombreNews = $ManagerNews->countUsingMemberId($this->app->user()->getAttribute('admin')->id());
+
+      if($nombreNews)
+      {
+        $this->page->addvar('nombreNews', $nombreNews);
+        $this->page->addvar('listeNews', $ManagerNews->getListUsingMemberId($this->app->user()->getAttribute('admin')->id()));
+      }
+    }
   }
 
   public function executeDelete(HTTPRequest $request)
@@ -41,60 +55,6 @@ class NewsController extends BackController
     $this->processForm($request);
 
     $this->page->addVar('title', 'Ajout d\'une news');
-  }
-
-  public function executeInsertUser(HTTPRequest $request)
-  {
-    $this->page->addVar('title', 'Ajout d\'un utilisateur');
-
-    $this->processUserForm($request);
-  }
-
-  public function processUserForm(HTTPRequest $request)
-  {
-    if ($request->method() == "POST")
-    {
-      $user = new User([
-          'login' => $request->postData('login'),
-          'password' => $request->postData('password'),
-          'level' => $request->postData('level')
-      ]);
-
-      if ($request->getExists('id'))
-      {
-        $user->setId($request->getData('id'));
-      }
-    }
-    else
-    {
-      // L'identifiant de l'utilisateur est transmis si on veut le modifier
-      if ($request->getExists('id'))
-      {
-        $user = $this->managers->getManagerOf('User')->getUnique($request->getData('id'));
-      }
-      else
-      {
-        $user = new User;
-      }
-    }
-
-    $formBuilder = new UserFormBuilder($user);
-    $formBuilder->build();
-
-    $form = $formBuilder->form();
-
-    // On récupère le gestionnaire de formulaire (le paramètre de getManagerOf() est bien entendu à remplacer).
-    $formHandler = new \OCFram\FormHandler($form, $this->managers->getManagerOf('User'), $request);
-
-    if ($formHandler->process())
-    {
-      // Ici ne résident plus que les opérations à effectuer une fois l'entité du formulaire enregistrée
-      // (affichage d'un message informatif, redirection, etc.).
-      $this->app->user()->setFlash($user->isNew() ? 'L \'utilisateur a bien été ajouté !' : 'L\'utiilsateur a bien été modifié !');
-      $this->app->httpResponse()->redirect('/admin/');
-    }
-
-    $this->page->addVar('form', $form->createView());
   }
 
   public function executeUpdate(HTTPRequest $request)
@@ -141,7 +101,7 @@ class NewsController extends BackController
     if ($request->method() == 'POST')
     {
       $news = new News([
-          'auteur' => $request->postData('auteur'),
+          'auteurId' => $this->app->user()->getAttribute('admin')->id(),
           'titre' => $request->postData('titre'),
           'contenu' => $request->postData('contenu')
       ]);

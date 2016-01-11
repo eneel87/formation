@@ -20,7 +20,7 @@ class CommentsManagerPDO extends CommentsManager
 
   public function getListOf($news)
   {
-    if (!ctype_digit($news))
+    if (!is_int($news))
     {
       throw new \InvalidArgumentException('L\'identifiant de la news passé doit être un nombre entier valide');
     }

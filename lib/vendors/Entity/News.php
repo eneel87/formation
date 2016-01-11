@@ -2,14 +2,16 @@
 namespace Entity;
 
 use \OCFram\Entity;
+use \Entity\Member;
 
 class News extends Entity
 {
-  protected $auteur,
+  protected $auteurId,
             $titre,
             $contenu,
             $dateAjout,
-            $dateModif;
+            $dateModif,
+            $Membre;
 
   const AUTEUR_INVALIDE = 1;
   const TITRE_INVALIDE = 2;
@@ -17,20 +19,20 @@ class News extends Entity
 
   public function isValid()
   {
-    return !(empty($this->auteur) || empty($this->titre) || empty($this->contenu));
+    return !(empty($this->auteurId) || empty($this->titre) || empty($this->contenu));
   }
 
 
   // SETTERS //
 
-  public function setAuteur($auteur)
+  public function setAuteurId($id)
   {
-    if (!is_string($auteur) || empty($auteur))
+    if (!is_int($id) || empty($id))
     {
       $this->erreurs[] = self::AUTEUR_INVALIDE;
     }
 
-    $this->auteur = $auteur;
+    $this->auteurId = $id;
   }
 
   public function setTitre($titre)
@@ -63,11 +65,16 @@ class News extends Entity
     $this->dateModif = $dateModif;
   }
 
+  public function setMembre(Member $Membre)
+  {
+    $this->Membre = $Membre;
+  }
+
   // GETTERS //
 
-  public function auteur()
+  public function auteurId()
   {
-    return $this->auteur;
+    return $this->auteurId;
   }
 
   public function titre()
@@ -88,5 +95,10 @@ class News extends Entity
   public function dateModif()
   {
     return $this->dateModif;
+  }
+
+  public function membre()
+  {
+    return $this->Membre;
   }
 }
