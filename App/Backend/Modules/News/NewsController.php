@@ -1,6 +1,7 @@
 <?php
 namespace App\Backend\Modules\News;
 
+use Model\MemberManager;
 use \OCFram\BackController;
 use \OCFram\HTTPRequest;
 use \Entity\News;
@@ -10,9 +11,27 @@ use \FormBuilder\NewsFormBuilder;
 use \FormBuilder\UserFormBuilder;
 use \OCFram\FormHandler;
 use \Entity\User;
+use OCFram\Application;
 
 class NewsController extends BackController
 {
+
+  public function __construct(Application $app, $module, $action)
+  {
+    parent::__construct($app, $module, $action);
+
+    if(($action=="update" || $action=="delete") && $this->app->user()->getAttribute('admin')->level() != MemberManager::ADMINISTRATOR )
+    {
+      $ManagerNews = $this->managers->getmanagerof('news');
+
+      $authorisation = $ManagerNews->newsModifAuthorisation($this->app->httpRequest()->getData('id'), $this->app->user()->getAttribute('admin')->id());
+
+      if(!$authorisation)
+      {
+        $this->app->httpResponse()->redirect('/admin/');
+      }
+    }
+  }
   public function executeIndex(HTTPRequest $request)
   {
     $this->page->addVar('title', 'Gestion des news');

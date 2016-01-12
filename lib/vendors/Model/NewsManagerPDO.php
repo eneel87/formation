@@ -128,6 +128,26 @@ class NewsManagerPDO extends NewsManager
     return 0;
   }
 
+  public function newsModifAuthorisation($newsId, $memberId)
+  {
+    $sql = 'SELECT *
+            FROM t_for_newsc
+            WHERE FNC_id = :id AND FNC_fk_FMC = :memberId';
+
+    $requete = $this->dao->prepare($sql);
+
+    $requete->bindValue('id', $newsId);
+    $requete->bindValue('memberId', $memberId);
+    $requete->execute();
+
+    if($requete->fetch())
+    {
+      return true;
+    }
+
+    return false;
+  }
+
   protected function add(News $news)
   {
     $sql = 'INSERT INTO t_for_newsc SET FNC_fk_FMC = :memberId, FNC_title = :titre, FNC_content = :contenu, FNC_dateadd = NOW(), FNC_dateupdate = NOW()';

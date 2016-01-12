@@ -1,6 +1,8 @@
 <?php
 namespace App\Backend\Modules\Member;
 
+use Model\MemberManager;
+use OCFram\Application;
 use \OCFram\BackController;
 use \OCFram\HTTPRequest;
 use \Entity\Member;
@@ -8,8 +10,19 @@ use \FormBuilder\MemberFormBuilder;
 use \OCFram\FormHandler;
 
 
+
 class MemberController extends BackController
 {
+    public function __construct(Application $app, $module, $action)
+    {
+        parent::__construct($app, $module, $action);
+
+        if ($this->app->user()->getAttribute('admin')->level() != MemberManager::ADMINISTRATOR)
+        {
+            $this->app->httpResponse()->redirect('/admin/');
+        }
+    }
+
     public function executeIndex(HTTPRequest $request)
     {
         $manager = $this->managers->getManagerOf('Member');
