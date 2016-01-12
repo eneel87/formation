@@ -59,41 +59,4 @@ class NewsController extends BackController
     $this->page->addVar('news', $news);
     $this->page->addVar('comments', $this->managers->getManagerOf('Comments')->getListOf($news->id()));
   }
-
-  public function executeInsertComment(HTTPRequest $request)
-  {
-    // Si le formulaire a été envoyé.
-    if ($request->method() == 'POST')
-    {
-      $comment = new Comment([
-          'news' => $request->getData('news'),
-          'auteur' => $request->postData('auteur'),
-          'contenu' => $request->postData('contenu')
-      ]);
-    }
-    else
-    {
-      $comment = new Comment;
-    }
-
-    $formBuilder = new CommentFormBuilder($comment);
-    $formBuilder->build();
-
-    $form = $formBuilder->form();
-
-    // On récupère le gestionnaire de formulaire (le paramètre de getManagerOf() est bien entendu à remplacer).
-    $formHandler = new \OCFram\FormHandler($form, $this->managers->getManagerOf('Comments'), $request);
-
-    if ($formHandler->process())
-    {
-      // Ici ne résident plus que les opérations à effectuer une fois l'entité du formulaire enregistrée
-      // (affichage d'un message informatif, redirection, etc.).
-      $this->app->user()->setFlash('Le commentaire a bien été ajouté, merci !');
-      $this->app->httpResponse()->redirect('news-'.$request->getData('news').'.html');
-    }
-
-    $this->page->addVar('comment', $comment);
-    $this->page->addVar('form', $form->createView());
-    $this->page->addVar('title', 'Ajout d\'un commentaire');
-  }
 }

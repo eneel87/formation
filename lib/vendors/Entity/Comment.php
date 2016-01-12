@@ -2,35 +2,40 @@
 namespace Entity;
 
 use \OCFram\Entity;
+use \Entity\Member;
 
 class Comment extends Entity
 {
-  protected $news,
-            $auteur,
+  protected $newsId,
+            $auteurId,
             $contenu,
-            $date;
+            $dateAjout,
+            $dateModif,
+            $Membre;
 
   const AUTEUR_INVALIDE = 1;
   const CONTENU_INVALIDE = 2;
 
   public function isValid()
   {
-    return !(empty($this->auteur) || empty($this->contenu));
+    return !(empty($this->auteurId) || empty($this->contenu));
   }
 
-  public function setNews($news)
+  public function setNewsId($newsId)
   {
-    $this->news = (int) $news;
+    $this->newsId = (int) $newsId;
   }
 
-  public function setAuteur($auteur)
+  public function setAuteurId($auteurId)
   {
-    if (!is_string($auteur) || empty($auteur))
+    $auteurId = (int) $auteurId;
+
+    if (!is_int($auteurId) || empty($auteurId))
     {
       $this->erreurs[] = self::AUTEUR_INVALIDE;
     }
 
-    $this->auteur = $auteur;
+    $this->auteurId = $auteurId;
   }
 
   public function setContenu($contenu)
@@ -43,19 +48,29 @@ class Comment extends Entity
     $this->contenu = $contenu;
   }
 
-  public function setDate(\DateTime $date)
+  public function setDateAjout(\DateTime $dateAjout)
   {
-    $this->date = $date;
+    $this->dateAjout = $dateAjout;
   }
 
-  public function news()
+  public function setDateModif(\DateTime $dateModif)
   {
-    return $this->news;
+    $this->dateModif = $dateModif;
   }
 
-  public function auteur()
+  public function setMembre(Member $Membre)
   {
-    return $this->auteur;
+    $this->Membre = $Membre;
+  }
+
+  public function newsId()
+  {
+    return $this->newsId;
+  }
+
+  public function auteurId()
+  {
+    return $this->auteurId;
   }
 
   public function contenu()
@@ -63,8 +78,18 @@ class Comment extends Entity
     return $this->contenu;
   }
 
-  public function date()
+  public function dateAjout()
   {
-    return $this->date;
+    return $this->dateAjout;
+  }
+
+  public function dateModif()
+  {
+    return $this->dateModif;
+  }
+
+  public function Membre()
+  {
+    return $this->Membre;
   }
 }

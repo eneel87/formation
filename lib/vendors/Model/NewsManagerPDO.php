@@ -8,7 +8,7 @@ class NewsManagerPDO extends NewsManager
 {
   public function getList($debut = -1, $limite = -1)
   {
-    $sql = 'SELECT FNC_id as id, FNC_title as titre, FNC_content as contenu, FNC_dateadd as dateAjout, FNC_dateupdate as dateModif, FMC_login as login
+    $sql = 'SELECT FNC_id as id, FNC_fk_FMC as auteurId, FNC_title as titre, FNC_content as contenu, FNC_dateadd as dateAjout, FNC_dateupdate as dateModif, FMC_login as login
             FROM t_for_newsc
             LEFT OUTER JOIN t_for_memberc ON FNC_fk_FMC = FMC_id
             ORDER BY FNC_id DESC';
@@ -26,6 +26,7 @@ class NewsManagerPDO extends NewsManager
     {
       $News = new News();
       $News->setId($data['id']);
+      $News->setAuteurId($data['auteurId']);
       $News->setTitre($data['titre']);
       $News->setContenu($data['contenu']);
       $News->setDateAjout(new \DateTime($data['dateAjout']));
@@ -77,7 +78,7 @@ class NewsManagerPDO extends NewsManager
 
   public function getUnique($id)
   {
-    $requete = $this->dao->prepare('SELECT FNC_id as id, FMC_login as login, FNC_title as titre, FNC_content as contenu, FNC_dateadd as dateAjout, FNC_dateupdate as dateModif
+    $requete = $this->dao->prepare('SELECT FNC_id as id, FNC_fk_FMC as auteurId, FMC_login as login, FNC_title as titre, FNC_content as contenu, FNC_dateadd as dateAjout, FNC_dateupdate as dateModif
                                     FROM t_for_newsc
                                     LEFT OUTER JOIN t_for_memberc ON FNC_fk_FMC = FMC_id
                                     WHERE FNC_id = :id');
@@ -91,6 +92,7 @@ class NewsManagerPDO extends NewsManager
     {
       $News = new News();
       $News->setId($data['id']);
+      $News->setAuteurId($data['auteurId']);
       $News->setTitre($data['titre']);
       $News->setContenu($data['contenu']);
       $News->setDateAjout(new \DateTime($data['dateAjout']));
@@ -126,26 +128,6 @@ class NewsManagerPDO extends NewsManager
     }
 
     return 0;
-  }
-
-  public function newsModifAuthorisation($newsId, $memberId)
-  {
-    $sql = 'SELECT *
-            FROM t_for_newsc
-            WHERE FNC_id = :id AND FNC_fk_FMC = :memberId';
-
-    $requete = $this->dao->prepare($sql);
-
-    $requete->bindValue('id', $newsId);
-    $requete->bindValue('memberId', $memberId);
-    $requete->execute();
-
-    if($requete->fetch())
-    {
-      return true;
-    }
-
-    return false;
   }
 
   protected function add(News $news)

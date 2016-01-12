@@ -20,14 +20,29 @@ class NewsController extends BackController
   {
     parent::__construct($app, $module, $action);
 
-    if(($action=="update" || $action=="delete") && $this->app->user()->getAttribute('admin')->level() != MemberManager::ADMINISTRATOR )
+    $Member = $this->app->user()->getAttribute('admin');
+
+    if(!$this->app->httpRequest()->getExists('id'))
+    {
+      return;
+    }
+    $news_id = $this->app->httpRequest()->getData('id');
+    $ManagerNews = $this->managers->getmanagerof('news');
+    $News = $ManagerNews->getUnique($news_id);
+
+    if(!$News)
+    {
+      $this->app->user()->setFlash('La news spécifiée n\'existe pas');
+      $this->app->httpResponse()->redirect('/admin/');
+    }
+
+    if(($action=="update" || $action=="delete") && $Member->level() != MemberManager::ADMINISTRATOR )
     {
       $ManagerNews = $this->managers->getmanagerof('news');
 
-      $authorisation = $ManagerNews->newsModifAuthorisation($this->app->httpRequest()->getData('id'), $this->app->user()->getAttribute('admin')->id());
-
-      if(!$authorisation)
+      if($Member->id()!= $ManagerNews->getUnique($news_id)->auteurId())
       {
+        $this->app->user()->setFlash("Vous n'avez les droits nécessaires pour cette action !");
         $this->app->httpResponse()->redirect('/admin/');
       }
     }
@@ -85,19 +100,37 @@ class NewsController extends BackController
 
   public function executeUpdateComment(HTTPRequest $request)
   {
+    $ManagerComment = $this->managers->getManagerof('Comments');
+
+    $comment_id = $request->getData('comment_id');
+    $Comment = $ManagerComment->getUnique($comment_id);
+    $Membre = $this->app->user()->getAttribute('admin');
+
+    if(!$Comment)
+    {
+      $this->app->user()->setFlash("Le commentaire spécifié n'existe pas !");
+      $this->app->httpResponse()->redirect('/admin/');
+    }
+
+    if($Membre->id() != $Comment->Membre()->id() && $Membre->level() != MemberManager::ADMINISTRATOR)
+    {
+      $this->app->user()->setFlash("Vous n'avez pas les droits nécessaires pour cette action !");
+      $this->app->httpResponse()->redirect('/admin/');
+    }
+
     $this->page->addVar('title', 'Modification d\'un commentaire');
 
     if ($request->method() == 'POST')
     {
       $comment = new Comment([
-          'id' => $request->getData('id'),
-          'auteur' => $request->postData('auteur'),
+          'id' => $request->getData('comment_id'),
+          'auteurId' => $this->app->user()->getAttribute('admin')->id(),
           'contenu' => $request->postData('contenu')
       ]);
     }
     else
     {
-      $comment = $this->managers->getManagerOf('Comments')->get($request->getData('id'));
+      $comment = $this->managers->getManagerOf('Comments')->get($request->getData('comment_id'));
     }
 
     $formBuilder = new CommentFormBuilder($comment);
@@ -165,10 +198,67 @@ class NewsController extends BackController
 
   public function executeDeleteComment(HTTPRequest $request)
   {
-    $this->managers->getManagerOf('Comments')->delete($request->getData('id'));
+    $ManagerComment = $this->managers->getManagerof('Comments');
+
+    $comment_id = $request->getData('comment_id');
+    $Comment = $ManagerComment->getUnique($comment_id);
+    $Membre = $this->app->user()->getAttribute('admin');
+
+    var_dump($Comment);
+
+    if(!$Comment)
+    {
+      $this->app->user()->setFlash("Le commentaire spécifié n'existe pas !");
+      $this->app->httpResponse()->redirect('/admin/');
+    }
+
+    if($Membre->id() != $Comment->Membre()->id() && $Membre->level() != MemberManager::ADMINISTRATOR)
+    {
+      $this->app->user()->setFlash("Vous n'avez pas les droits nécessaires pour cette action !");
+      $this->app->httpResponse()->redirect('/admin/');
+    }
+
+    $this->managers->getManagerOf('Comments')->delete($comment_id);
     
     $this->app->user()->setFlash('Le commentaire a bien été supprimé !');
     
     $this->app->httpResponse()->redirect('.');
+  }
+
+  public function executeInsertComment(HTTPRequest $request)
+  {
+    // Si le formulaire a été envoyé.
+    if ($request->method() == 'POST')
+    {
+      $comment = new Comment([
+          'newsId' => $request->getData('news_id'),
+          'auteurId' => $this->app->user()->getAttribute('admin')->id(),
+          'contenu' => $request->postData('contenu')
+      ]);
+    }
+    else
+    {
+      $comment = new Comment;
+    }
+
+    $formBuilder = new CommentFormBuilder($comment);
+    $formBuilder->build();
+
+    $form = $formBuilder->form();
+
+    // On récupère le gestionnaire de formulaire (le paramètre de getManagerOf() est bien entendu à remplacer).
+    $formHandler = new \OCFram\FormHandler($form, $this->managers->getManagerOf('Comments'), $request);
+
+    if ($formHandler->process())
+    {
+      // Ici ne résident plus que les opérations à effectuer une fois l'entité du formulaire enregistrée
+      // (affichage d'un message informatif, redirection, etc.).
+      $this->app->user()->setFlash('Le commentaire a bien été ajouté, merci !');
+      $this->app->httpResponse()->redirect('../news-'.$request->getData('news_id').'.html');
+    }
+
+    $this->page->addVar('comment', $comment);
+    $this->page->addVar('form', $form->createView());
+    $this->page->addVar('title', 'Ajout d\'un commentaire');
   }
 }
