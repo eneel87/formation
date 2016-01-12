@@ -9,12 +9,14 @@ class Member extends Entity
               $password,
               $level,
               $dateAjout,
-              $dateModif;
+              $dateModif,
+              $levelNom;
 
 
     const LOGIN_INVALIDE = 1;
     const PASSWORD_INVALIDE = 2;
     const LEVEL_INVALIDE = 3;
+    const LEVEL_NOM_INVALIDE = 4;
 
     public function isValid()
     {
@@ -29,6 +31,7 @@ class Member extends Entity
         }
 
         $this->login = $login;
+        return $this;
     }
 
     public function setPassword($password)
@@ -39,6 +42,7 @@ class Member extends Entity
         }
 
         $this->password = $password;
+        return $this;
     }
 
     public function setLevel($level)
@@ -51,16 +55,30 @@ class Member extends Entity
         }
 
         $this->level = $lev;
+        return $this;
     }
 
     public function setDateAjout(\DateTime $dateAjout)
     {
         $this->dateAjout = $dateAjout;
+        return $this;
     }
 
     public function setDateModif(\DateTime $dateModif)
     {
         $this->dateModif = $dateModif;
+        return $this;
+    }
+
+    public function setLevelNom($levelNom)
+    {
+        if(!is_string($levelNom) || empty($levelNom))
+        {
+            $this->erreurs[] = self::LEVEL_NOM_INVALIDE;
+        }
+
+        $this->levelNom = $levelNom;
+        return $this;
     }
 
     public function login()
@@ -86,5 +104,10 @@ class Member extends Entity
     public function dateModif()
     {
         return $this->dateModif;
+    }
+
+    public function levelNom()
+    {
+        return $this->levelNom;
     }
 }

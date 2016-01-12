@@ -122,27 +122,25 @@ class NewsController extends BackController
 
     if ($request->method() == 'POST')
     {
-      $comment = new Comment([
-          'id' => $request->getData('comment_id'),
-          'auteurId' => $this->app->user()->getAttribute('admin')->id(),
-          'contenu' => $request->postData('contenu')
-      ]);
+      $ManagerComment = $this->managers->getManagerof('Comments');
+      $Comment = $ManagerComment->getUnique($request->getData('comment_id'));
+      $Comment->setContenu($request->postData('contenu'));
     }
     else
     {
-      $comment = $this->managers->getManagerOf('Comments')->get($request->getData('comment_id'));
+      $Comment = $this->managers->getManagerOf('Comments')->get($request->getData('comment_id'));
     }
 
-    $formBuilder = new CommentFormBuilder($comment);
+    $formBuilder = new CommentFormBuilder($Comment);
     $formBuilder->build();
 
     $form = $formBuilder->form();
 
     if ($request->method() == 'POST' && $form->isValid())
     {
-      $this->managers->getManagerOf('Comments')->save($comment);
+      $this->managers->getManagerOf('Comments')->save($Comment);
       $this->app->user()->setFlash('Le commentaire a bien été modifié');
-      $this->app->httpResponse()->redirect('/admin/');
+      $this->app->httpResponse()->redirect('/news-'.$Comment->newsId().'.html');
     }
 
     $this->page->addVar('form', $form->createView());
@@ -189,7 +187,7 @@ class NewsController extends BackController
       // Ici ne résident plus que les opérations à effectuer une fois l'entité du formulaire enregistrée
       // (affichage d'un message informatif, redirection, etc.).
       $this->app->user()->setFlash($news->isNew() ? 'La news a bien été ajoutée !' : 'La news a bien été modifiée !');
-      $this->app->httpResponse()->redirect('/admin/');
+      $this->app->httpResponse()->redirect('/admin/news.html');
     }
 
     $this->page->addVar('form', $form->createView());
@@ -203,8 +201,6 @@ class NewsController extends BackController
     $comment_id = $request->getData('comment_id');
     $Comment = $ManagerComment->getUnique($comment_id);
     $Membre = $this->app->user()->getAttribute('admin');
-
-    var_dump($Comment);
 
     if(!$Comment)
     {
@@ -222,7 +218,7 @@ class NewsController extends BackController
     
     $this->app->user()->setFlash('Le commentaire a bien été supprimé !');
     
-    $this->app->httpResponse()->redirect('.');
+    $this->app->httpResponse()->redirect('/news-'.$Comment->newsId().'.html');
   }
 
   public function executeInsertComment(HTTPRequest $request)

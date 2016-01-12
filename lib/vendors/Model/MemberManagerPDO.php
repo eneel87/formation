@@ -13,8 +13,8 @@ class MemberManagerPDO extends MemberManager
                 WHERE FMC_login = :login AND FMC_password = :password';
 
         $requete = $this->dao->prepare($sql);
-        $requete->bindValue(':login', $Member->login());
-        $requete->bindValue(':password', $Member->password());
+        $requete->bindValue(':login', $Member->login(), \PDO::PARAM_STR);
+        $requete->bindValue(':password', $Member->password(), \PDO::PARAM_STR);
         $requete->execute();
 
         $result = $requete->fetchColumn();
@@ -34,8 +34,8 @@ class MemberManagerPDO extends MemberManager
                 WHERE FMC_login = :login AND FMC_password = :password';
 
         $requete = $this->dao->prepare($sql);
-        $requete->bindValue(':login', $login);
-        $requete->bindValue(':password', $password);
+        $requete->bindValue(':login', $login, \PDO::PARAM_STR);
+        $requete->bindValue(':password', $password, \PDO::PARAM_STR);
         $requete->execute();
 
         $requete->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Entity\Member');
@@ -60,7 +60,10 @@ class MemberManagerPDO extends MemberManager
 
     public function getList($debut = -1, $limite = -1)
     {
-        $sql = 'SELECT FMC_id as id, FMC_login as login, FMC_password as password, FMC_fk_FMY as level, FMC_dateadd as dateAjout, FMC_dateupdate as dateModif FROM T_FOR_memberc ORDER BY FMC_id DESC';
+        $sql = 'SELECT *
+                FROM T_FOR_memberc
+                INNER JOIN T_FOR_membery ON FMC_fk_FMY = FMY_id
+                ORDER BY FMC_id DESC';
 
         if ($debut != -1 || $limite != -1)
         {
@@ -68,14 +71,20 @@ class MemberManagerPDO extends MemberManager
         }
 
         $requete = $this->dao->query($sql);
-        $requete->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Entity\Member');
 
-        $listeMember = $requete->fetchAll();
+        $listeMember = array();
 
-        foreach ($listeMember as $Member)
+        while($data = $requete->fetch())
         {
-            $Member->setDateAjout(new \DateTime($Member->dateAjout()));
-            $Member->setDateModif(new \DateTime($Member->dateModif()));
+            $Member = new Member();
+            $Member->setId($data['FMC_id'])
+                   ->setLogin($data['FMC_login'])
+                   ->setPassword($data['FMC_password'])
+                   ->setDateAjout(new \DateTime($data['FMC_dateadd']))
+                   ->setDateModif(new \DateTime($data['FMC_dateupdate']))
+                   ->setLevelNom($data['FMY_type']);
+
+            $listeMember[] = $Member;
         }
 
         $requete->closeCursor();
@@ -85,11 +94,11 @@ class MemberManagerPDO extends MemberManager
 
     public function add(Member $Member)
     {
-        $requete = $this->dao->prepare('INSERT INTO T_FOR_memberc SET FMC_login = :login, FMC_password = :password, FMC_fk_FMY= :level');
+        $requete = $this->dao->prepare('INSERT INTO T_FOR_memberc SET FMC_login = :login, FMC_password = :password, FMC_fk_FMY= :level, FMC_dateadd = NOW(), FMC_dateupdate = NOW()');
 
-        $requete->bindValue(':login', $Member->login());
-        $requete->bindValue(':password', $Member->password());
-        $requete->bindValue(':level', $Member->level());
+        $requete->bindValue(':login', $Member->login(), \PDO::PARAM_STR);
+        $requete->bindValue(':password', $Member->password(), \PDO::PARAM_STR);
+        $requete->bindValue(':level', $Member->level(), \PDO::PARAM_INT);
 
         $requete->execute();
     }
@@ -98,9 +107,9 @@ class MemberManagerPDO extends MemberManager
     {
         $requete = $this->dao->prepare('UPDATE T_FOR_memberc SET FMC_login = :login, FMC_password = :password, FMC_fk_FMY = :level, FMC_dateupdate = NOW() WHERE FMC_id = :id');
 
-        $requete->bindValue(':login', $Member->login());
-        $requete->bindValue(':password', $Member->password());
-        $requete->bindValue(':level', $Member->level());
+        $requete->bindValue(':login', $Member->login(), \PDO::PARAM_STR);
+        $requete->bindValue(':password', $Member->password(), \PDO::PARAM_STR);
+        $requete->bindValue(':level', $Member->level(), \PDO::PARAM_INT);
         $requete->bindValue(':id', (int) $Member->id(), \PDO::PARAM_INT);
 
         $requete->execute();
@@ -113,6 +122,10 @@ class MemberManagerPDO extends MemberManager
 
     public function delete($id)
     {
-        $this->dao->exec('DELETE FROM t_for_memberc WHERE FMC_id = '.(int) $id);
+        $sql = 'DELETE FROM t_for_memberc WHERE FMC_id = :id';
+
+        $requete = $this->dao->prepare($sql);
+        $requete->bindValue('id', $id, \PDO::PARAM_INT);
+        $requete->execute();
     }
 }

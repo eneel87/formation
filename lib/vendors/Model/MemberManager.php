@@ -67,6 +67,7 @@ abstract class MemberManager extends Manager
 
         if($Member->isValid())
         {
+
             $Member->isNew() ? $this->add($Member) : $this->modify($Member);
         }
         else

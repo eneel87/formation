@@ -16,7 +16,11 @@ foreach ($comments as $comment)
 ?>
 <fieldset>
   <legend>
-    Posté par <strong><?= htmlspecialchars($comment->Membre()->login()) ?></strong> le <?php if ($comment->dateAjout() == $comment->dateModif()){echo $comment->dateAjout()->format('d/m/Y à H\hi');}else{ echo $comment->dateModif()->format('d/m/Y à H\hi');}  ?>
+    Posté par <strong><?= htmlspecialchars($comment->Membre()->login()) ?></strong> le <?php
+    $dateAjoutFormated= $comment->dateAjout()->format('d/m/Y à H\hi');
+    $dateModifFormated= $comment->dateModif()->format('d/m/Y à H\hi');
+
+    if ($comment->dateAjout() == $comment->dateModif()){echo $dateAjoutFormated;}else{ echo $dateAjoutFormated.'<em>( Modifié le '.$dateModifFormated.')</em>';}  ?>
     <?php if (($user->isAuthenticated() && $comment->Membre()->id() == $user->getAttribute('admin')->id()) || ($user->isAuthenticated() && $user->getAttribute('admin')->level() == \Model\MemberManager::ADMINISTRATOR)) { ?> -
       <a href="admin/comment-update-<?= $comment->id() ?>.html">Modifier</a> |
       <a href="admin/comment-delete-<?= $comment->id() ?>.html">Supprimer</a>

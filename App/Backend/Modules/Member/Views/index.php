@@ -9,7 +9,7 @@
     <?php
     foreach ($listeMembers as $member)
     {
-        echo '<tr><td>', $member['login'], '</td><td>', $member['password'], '</td><td>',$member['level'],'</td><td> le', $member['dateAjout']->format('d/m/Y à H\hi'), '</td><td>', ($member['dateAjout'] == $member['dateModif'] ? '-' : 'le '.$member['dateModif']->format('d/m/Y à H\hi')), '</td><td><a href="member-update-', $member['id'], '.html"><img src="/images/update.png" alt="Modifier" /></a> <a href="member-delete-', $member['id'], '.html"><img src="/images/delete.png" alt="Supprimer" /></a></td></tr>', "\n";
+        echo '<tr><td>', $member['login'], '</td><td>', $member['password'], '</td><td>',$member['levelNom'],'</td><td> le', $member['dateAjout']->format('d/m/Y à H\hi'), '</td><td>', ($member['dateAjout'] == $member['dateModif'] ? '-' : 'le '.$member['dateModif']->format('d/m/Y à H\hi')), '</td><td><a href="member-update-', $member['id'], '.html"><img src="/images/update.png" alt="Modifier" /></a> <a href="member-delete-', $member['id'], '.html"><img src="/images/delete.png" alt="Supprimer" /></a></td></tr>', "\n";
     }
     ?>
 </table>

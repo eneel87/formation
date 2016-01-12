@@ -65,7 +65,6 @@ class MemberController extends BackController
             // L'identifiant de l'utilisateur est transmis si on veut le modifier
             if ($request->getExists('id'))
             {
-                echo $request->getData('id');
                 $member = $this->managers->getManagerOf('Member')->getUnique($request->getData('id'));
             }
             else
@@ -84,10 +83,14 @@ class MemberController extends BackController
 
         if ($formHandler->process())
         {
+            if($member->id()== $this->app->user()->getAttribute('admin')->id())
+            {
+                $this->app->user()->setAttribute('admin', $member);
+            }
             // Ici ne résident plus que les opérations à effectuer une fois l'entité du formulaire enregistrée
             // (affichage d'un message informatif, redirection, etc.).
             $this->app->user()->setFlash($member->isNew() ? 'L \'utilisateur a bien été ajouté !' : 'L\'utiilsateur a bien été modifié !');
-            $this->app->httpResponse()->redirect('/admin/');
+            $this->app->httpResponse()->redirect('/admin/members.html');
         }
 
         $this->page->addVar('form', $form->createView());
@@ -99,8 +102,13 @@ class MemberController extends BackController
 
         $this->managers->getManagerOf('Member')->delete($MemberId);
 
+        if($this->app->user()->getAttribute('admin')->id() == $MemberId)
+        {
+            $this->app->httpResponse()->redirect('/admin/deconnexion.html');
+        }
+
         $this->app->user()->setFlash('L\'utilisateur a bien été supprimé !');
 
-        $this->app->httpResponse()->redirect('.');
+        $this->app->httpResponse()->redirect('/admin/members.html');
     }
 }

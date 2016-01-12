@@ -12,7 +12,7 @@ class CommentsManagerPDO extends CommentsManager
     
     $q->bindValue(':newsId', $comment->newsId(), \PDO::PARAM_INT);
     $q->bindValue(':auteurId', $comment->auteurId(), \PDO::PARAM_INT);
-    $q->bindValue(':contenu', $comment->contenu());
+    $q->bindValue(':contenu', $comment->contenu(), \PDO::PARAM_STR);
     
     $q->execute();
     
@@ -91,7 +91,7 @@ class CommentsManagerPDO extends CommentsManager
     $q = $this->dao->prepare('UPDATE t_for_commentc SET FCC_fk_FMC = :auteurId, FCC_content = :contenu, FCC_dateupdate = NOW() WHERE FCC_id = :id');
     
     $q->bindValue(':auteurId', $comment->auteurId(), \PDO::PARAM_INT);
-    $q->bindValue(':contenu', $comment->contenu());
+    $q->bindValue(':contenu', $comment->contenu(), \PDO::PARAM_STR);
     $q->bindValue(':id', $comment->id(), \PDO::PARAM_INT);
     
     $q->execute();
@@ -110,11 +110,19 @@ class CommentsManagerPDO extends CommentsManager
 
   public function delete($id)
   {
-    $this->dao->exec('DELETE FROM t_for_commentc WHERE FCC_id = '.(int) $id);
+    $sql = 'DELETE FROM t_for_commentc WHERE FCC_id = :id';
+
+    $requete = $this->dao->prepare($sql);
+    $requete->bindValue('id', $id, \PDO::PARAM_INT);
+    $requete->execute();
   }
 
   public function deleteFromNews($newsId)
   {
-    $this->dao->exec('DELETE FROM t_for_commentc WHERE FCC_fk_FNC = '.(int) $newsId);
+    $sql = 'DELETE FROM t_for_commentc WHERE FCC_fk_FNC = :newsId';
+
+    $requete = $this->dao->prepare($sql);
+    $requete->bindValue('newsId', $newsId, \PDO::PARAM_INT);
+    $requete->execute();
   }
 }

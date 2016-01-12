@@ -136,9 +136,9 @@ class NewsManagerPDO extends NewsManager
 
     $requete = $this->dao->prepare($sql);
 
-    $requete->bindValue(':memberId', $news->auteurId());
-    $requete->bindValue(':titre', $news->titre());
-    $requete->bindValue(':contenu', $news->contenu());
+    $requete->bindValue(':memberId', $news->auteurId(), \PDO::PARAM_INT);
+    $requete->bindValue(':titre', $news->titre(), \PDO::PARAM_STR);
+    $requete->bindValue(':contenu', $news->contenu(), \PDO::PARAM_STR);
     
     $requete->execute();
   }
@@ -147,8 +147,8 @@ class NewsManagerPDO extends NewsManager
   {
     $requete = $this->dao->prepare('UPDATE t_for_newsc SET FNC_title = :titre, FNC_content = :contenu, FNC_dateupdate = NOW() WHERE FNC_id = :id');
     
-    $requete->bindValue(':titre', $news->titre());
-    $requete->bindValue(':contenu', $news->contenu());
+    $requete->bindValue(':titre', $news->titre(), \PDO::PARAM_STR);
+    $requete->bindValue(':contenu', $news->contenu(), \PDO::PARAM_STR);
     $requete->bindValue(':id', $news->id(), \PDO::PARAM_INT);
     
     $requete->execute();
@@ -156,6 +156,10 @@ class NewsManagerPDO extends NewsManager
 
   public function delete($id)
   {
-    $this->dao->exec('DELETE FROM t_for_newsc WHERE FNC_id = '.(int) $id);
+    $sql = 'DELETE FROM t_for_newsc WHERE FNC_id =:id';
+
+    $requete = $this->dao->prepare($sql);
+    $requete->bindValue('id', $id, \PDO::PARAM_INT);
+    $requete->execute();
   }
 }

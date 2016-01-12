@@ -23,7 +23,6 @@
           <?php if (!$user->isAuthenticated() ) {?>
           <li><a href="/admin/">Connexion</a></li> <?php } ?>
           <?php if ($user->isAuthenticated()) { ?>
-          <li><a href="/admin/">Administration</a></li>
           <?php if($user->getAttribute('admin')->level()==1){ ?>
           <li><a href="/admin/members.html">Gestion des utilisateurs</a></li><?php } ?>
           <li><a href="/admin/news.html">Gestion des news</a></li>
