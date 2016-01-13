@@ -24,7 +24,7 @@
         <li><a href="/admin/">Connexion</a></li> <?php }
       else {?>
       <li><a href="/admin/news.html">Gestion des news</a></li>
-      <li><a href="/admin/deconnexion.html">Déconnexion de <?php echo $user->getAttribute('admin')->login(); } ?></a></li>
+      <li><a href="/admin/deconnexion.html">Déconnexion de <?php echo htmlspecialchars($user->getAttribute('admin')->login()); } ?></a></li>
     </ul>
   </nav>
 

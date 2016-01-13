@@ -23,31 +23,24 @@ abstract class Application
   {
     $router = new Router;
 
-    $xml = new \DOMDocument;
-    $xml->load(__DIR__.'/../../App/'.$this->name.'/Config/routes.xml');
+    $router->buildRouteForApplication($this->name());
 
-    $routes = $xml->getElementsByTagName('route');
-
-    // On parcourt les routes du fichier XML.
-    foreach ($routes as $route)
+    if ($this->name() == "Backend")
     {
-      $vars = [];
-
-      // On regarde si des variables sont présentes dans l'URL.
-      if ($route->hasAttribute('vars'))
-      {
-        $vars = explode(',', $route->getAttribute('vars'));
-      }
-
-      // On ajoute la route au routeur.
-      $router->addRoute(new Route($route->getAttribute('url'), $route->getAttribute('module'), $route->getAttribute('action'), $vars));
+      $router->buildRouteForApplication('Frontend');
     }
+    else
+    {
+      $router->buildRouteForApplication('Backend');
+    }
+
+    var_dump($router::$routes);
 
     try
     {
       // On récupère la route correspondante à l'URL.
 
-      $matchedRoute = $router->getRoute($this->httpRequest->requestURI());
+      $matchedRoute = $router->getRoute($this->httpRequest->requestURI(), $this->name());
     }
     catch (\RuntimeException $e)
     {

@@ -6,15 +6,17 @@ class Route
   protected $action;
   protected $module;
   protected $url;
+  protected $pattern;
   protected $varsNames;
   protected $vars = [];
 
-  public function __construct($url, $module, $action, array $varsNames)
+  public function __construct($url, $module, $action, array $varsNames, $pattern)
   {
     $this->setUrl($url);
     $this->setModule($module);
     $this->setAction($action);
     $this->setVarsNames($varsNames);
+    $this->setPattern($pattern);
   }
 
   public function hasVars()
@@ -68,6 +70,11 @@ class Route
     $this->vars = $vars;
   }
 
+  public function setPattern($pattern)
+  {
+    $this->pattern = $pattern;
+  }
+
   public function action()
   {
     return $this->action;
@@ -86,5 +93,10 @@ class Route
   public function varsNames()
   {
     return $this->varsNames;
+  }
+
+  public function pattern()
+  {
+    return $this->pattern;
   }
 }

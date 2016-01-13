@@ -17,12 +17,13 @@ class ConnexionController extends BackController
   {
     $this->page->addVar('title', 'Connexion');
 
-    if ($request->postExists('login'))
+    if ($request->postExists('login') && $request->postExists('password'))
     {
       /** @var MemberManager $MemberManager */
       $MemberManager = $this->managers->getManagerOf('Member');
 
       $Member = $MemberManager->getMemberUsingLoginAndPassword($request->postData('login'), $request->postData('password'));
+
       if($Member && $Member->level()<= self::LEVEL_AUTHORISATION)
       {
         $this->app->user()->setAuthenticated(true);

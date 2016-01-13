@@ -12,8 +12,9 @@
 
   foreach ($listeNews as $news)
   {
-    $loginToDisplay = $news->Membre()->login() ? $news->Membre()->login() : "Membre supprimé";
-    echo '<tr><td>', $loginToDisplay, '</td><td>', $news->titre(), '</td><td>le ', $news->dateAjout()->format('d/m/Y à H\hi'), '</td><td>', ($news->dateAjout() == $news->dateModif() ? '-' : 'le '.$news->dateModif()->format('d/m/Y à H\hi')), '</td><td><a href="news-update-', $news['id'], '.html"><img src="/images/update.png" alt="Modifier" /></a> <a href="news-delete-', $news->id(), '.html"><img src="/images/delete.png" alt="Supprimer" /></a></td></tr>', "\n";
+    $loginToDisplay = $news->Membre->login() ? $news->Membre->login() : "Membre supprimé";
+
+    echo '<tr><td>', htmlspecialchars($loginToDisplay), '</td><td>', htmlspecialchars($news->titre()), '</td><td>le ', htmlspecialchars($news->dateAjout()->format('d/m/Y à H\hi')), '</td><td>', ($news->dateAjout() == $news->dateModif() ? '-' : 'le '.htmlspecialchars($news->dateModif()->format('d/m/Y à H\hi'))), '</td><td><a href="news-update-', htmlspecialchars($news['id']), '.html"><img src="/images/update.png" alt="Modifier" /></a> <a href="news-delete-', htmlspecialchars($news->id()), '.html"><img src="/images/delete.png" alt="Supprimer" /></a></td></tr>', "\n";
   }
   ?>
   </table>

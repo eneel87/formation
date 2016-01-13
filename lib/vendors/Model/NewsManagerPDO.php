@@ -31,7 +31,7 @@ class NewsManagerPDO extends NewsManager
       $News->setContenu($data['contenu']);
       $News->setDateAjout(new \DateTime($data['dateAjout']));
       $News->setDateModif(new \DateTime($data['dateModif']));
-      $News->setMembre(new Member(array('login' => $data['login'])));
+      $News->Membre = new Member(array('login'=>$data['login']));
       $listeNews[] = $News;
     }
 
@@ -67,7 +67,7 @@ class NewsManagerPDO extends NewsManager
       $News->setContenu($data['contenu']);
       $News->setDateAjout(new \DateTime($data['dateAjout']));
       $News->setDateModif(new \DateTime($data['dateModif']));
-      $News->setMembre(new Member(array('login' => $data['login'])));
+      $News->Membre = new Member(array('login' => $data['login']));
       $listeNews[] = $News;
     }
 
@@ -97,9 +97,18 @@ class NewsManagerPDO extends NewsManager
       $News->setContenu($data['contenu']);
       $News->setDateAjout(new \DateTime($data['dateAjout']));
       $News->setDateModif(new \DateTime($data['dateModif']));
-      $News->setMembre(new Member(array('login' => $data['login'])));
+      $News->Membre = new Member(array('login' => $data['login']));
 
       return $News;
+
+      /*
+       $line=array();
+      if($line=$stmt->fetch())
+          return new News($line)->__set('Member', new Member($line))
+
+      $News->Member=85
+
+      */
     }
 
     return null;

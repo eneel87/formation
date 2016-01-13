@@ -7,6 +7,8 @@ use \OCFram\HTTPRequest;
 use \Entity\Comment;
 use \FormBuilder\CommentFormBuilder;
 use \OCFram\FormHandler;
+use OCFram\Router;
+use OCFram\Url;
 
 
 class NewsController extends BackController
@@ -36,7 +38,7 @@ class NewsController extends BackController
       {
         $debut = substr($news->contenu(), 0, $nombreCaracteres);
         $debut = substr($debut, 0, strrpos($debut, ' ')) . '...';
-        
+
         $news->setContenu($debut);
       }
     }
@@ -54,7 +56,7 @@ class NewsController extends BackController
       $this->app->httpResponse()->redirect404();
     }
 
-    
+    $this->page->addVar('router', new Router());
     $this->page->addVar('title', $news->titre());
     $this->page->addVar('news', $news);
     $this->page->addVar('comments', $this->managers->getManagerOf('Comments')->getListOf($news->id()));
