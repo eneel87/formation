@@ -3,6 +3,7 @@ namespace App\Backend\Modules\News;
 
 use Model\MemberManager;
 use \OCFram\BackController;
+use OCFram\DataAttribute;
 use \OCFram\HTTPRequest;
 use \Entity\News;
 use \Entity\Comment;
@@ -224,12 +225,29 @@ class NewsController extends BackController
     $this->app->httpResponse()->redirect('/news-'.$Comment->newsId().'.html');
   }
 
+  public function executeInsertCommentUsingAjax(HTTPRequest $request)
+  {
+    if ($request->method() == 'POST')
+    {
+
+      $message = $request->getData('news_id');
+
+       exit(json_encode($message));
+    }
+    else
+    {
+      $message = "erreur";
+
+      exit(json_encode($message));
+    }
+  }
+
   public function executeInsertComment(HTTPRequest $request)
   {
     // Si le formulaire a été envoyé.
     if ($request->method() == 'POST')
     {
-      $comment = new Comment([
+      $Comment = new Comment([
           'newsId' => $request->getData('news_id'),
           'auteurId' => $this->app->user()->getAttribute('admin')->id(),
           'contenu' => $request->postData('contenu')
@@ -237,10 +255,10 @@ class NewsController extends BackController
     }
     else
     {
-      $comment = new Comment;
+      $Comment = new Comment;
     }
 
-    $formBuilder = new CommentFormBuilder($comment);
+    $formBuilder = new CommentFormBuilder($Comment);
     $formBuilder->build();
 
     $form = $formBuilder->form();
@@ -256,8 +274,18 @@ class NewsController extends BackController
       $this->app->httpResponse()->redirect('../news-'.$request->getData('news_id').'.html');
     }
 
-    $this->page->addVar('comment', $comment);
+    $Router = new Router();
+    $form_action = $Router->getUrl('Backend', 'News', 'insertComment', array('news_id' => $request->getData('news_id')));
+    $form_action_ajax_validation = $Router->getUrl('Backend', 'News', 'insertCommentUsingAjax', array('news_id' => $request->getData('news_id')));
+
+    $jsFiles_a = array();
+    $jsFiles_a[] = '<script type="text/javascript" src="/js/CommentInsertUsingAjax.js"></script>';
+
+    $this->page->addVar('form_action', $form_action);
+    $this->page->addVar('form_action_ajax_validation', $form_action_ajax_validation);
+    $this->page->addVar('comment', $Comment);
     $this->page->addVar('form', $form->createView());
     $this->page->addVar('title', 'Ajout d\'un commentaire');
+    $this->page->addVar('jsFiles_a', $jsFiles_a);
   }
 }

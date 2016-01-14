@@ -17,4 +17,8 @@
 	<route url="/admin/member-insert\.html" module="Member" action="insert" pattern="/admin/member-insert.html"/>
 	<route url="/admin/member-update-([0-9]+)\.html" module="Member" action="update" vars="id" pattern="/admin/member-update-%id%.html"/>
 	<route url="/admin/member-delete-([0-9]+)\.html" module="Member" action="delete" vars="id" pattern="/admin/member-delete-%id%.html"/>
+
+	<route url="/admin/ajax_test-([0-9]+)" module="News" action="ajaxTest" vars="news_id"/>
+
+	<route url="/admin/comment-insert-([0-9]+)-using-ajax\.html" module="News" action="insertCommentUsingAjax" vars="news_id" pattern="/admin/comment-insert-%news_id%-using-ajax.html" />
 </routes>

@@ -8,8 +8,11 @@ abstract class Field
     protected $errorMessage;
     protected $label;
     protected $name;
+    protected $id;
     protected $validators = [];
     protected $value;
+    protected $type;
+    protected $DataAttribute_a = [];
 
     public function __construct(array $options = [])
     {
@@ -60,6 +63,11 @@ abstract class Field
         return $this->value;
     }
 
+    public function id()
+    {
+        return $this->id;
+    }
+
     public function setLabel($label)
     {
         if (is_string($label))
@@ -103,5 +111,25 @@ abstract class Field
         {
             $this->value = $value;
         }
+    }
+
+    public function setId($id)
+    {
+        if (is_string($id))
+        {
+            $this->id = $id;
+        }
+    }
+
+    public function setData(array $tab)
+    {
+        foreach($tab as $Data)
+        {
+            if (!in_array($Data, $this->data))
+            {
+                $this->data[] = $Data;
+            }
+        }
+
     }
 }

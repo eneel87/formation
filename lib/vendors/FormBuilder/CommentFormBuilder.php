@@ -1,11 +1,13 @@
 <?php
 namespace FormBuilder;
 
+use \OCFram\DataAttribute;
 use \OCFram\FormBuilder;
 use \OCFram\StringField;
 use \OCFram\TextField;
 use \OCFram\MaxLengthValidator;
 use \OCFram\NotNullValidator;
+
 
 class CommentFormBuilder extends FormBuilder
 {
@@ -14,6 +16,7 @@ class CommentFormBuilder extends FormBuilder
     $this->form->add(new TextField([
         'label' => 'Contenu',
         'name' => 'contenu',
+        'id' => 'contenu',
         'rows' => 7,
         'cols' => 50,
         'validators' => [

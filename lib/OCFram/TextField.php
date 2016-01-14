@@ -15,7 +15,7 @@ class TextField extends Field
             $widget .= $this->errorMessage.'<br />';
         }
 
-        $widget .= '<label>'.$this->label.'</label><textarea name="'.$this->name.'"';
+        $widget .= '<label>'.$this->label.'</label><textarea name="'.$this->name.'"'.' id="'.$this->id().'"';
 
         if (!empty($this->cols))
         {
@@ -25,6 +25,14 @@ class TextField extends Field
         if (!empty($this->rows))
         {
             $widget .= ' rows="'.$this->rows.'"';
+        }
+
+        if (!empty($this->data))
+        {
+            foreach($this->data as $Data)
+            {
+                $widget .= ' data-'.$Data->name().'="'.$Data->value().'"';
+            }
         }
 
         $widget .= '>';
