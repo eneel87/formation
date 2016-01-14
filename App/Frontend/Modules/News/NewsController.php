@@ -2,6 +2,7 @@
 namespace App\Frontend\Modules\News;
 
 use Model\NewsManager;
+use \OCFram\Application;
 use \OCFram\BackController;
 use \OCFram\HTTPRequest;
 use \Entity\Comment;
@@ -13,6 +14,13 @@ use OCFram\Url;
 
 class NewsController extends BackController
 {
+
+  public function __construct(Application $app, $module, $action)
+  {
+    parent::__construct($app, $module, $action);
+
+    $this->page->addVar('router', new Router());
+  }
   public function executeIndex(HTTPRequest $request)
   {
 
@@ -42,6 +50,9 @@ class NewsController extends BackController
         $news->setContenu($debut);
       }
     }
+
+    $Router = new Router();
+
     
     // On ajoute la variable $listeNews à la vue.
     $this->page->addVar('listeNews', $listeNews);

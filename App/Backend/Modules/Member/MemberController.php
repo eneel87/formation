@@ -8,7 +8,7 @@ use \OCFram\HTTPRequest;
 use \Entity\Member;
 use \FormBuilder\MemberFormBuilder;
 use \OCFram\FormHandler;
-
+use OCFram\Router;
 
 
 class MemberController extends BackController
@@ -21,6 +21,8 @@ class MemberController extends BackController
         {
             $this->app->httpResponse()->redirect('/admin/');
         }
+
+        $this->page->addVar('router', new Router());
     }
 
     public function executeIndex(HTTPRequest $request)

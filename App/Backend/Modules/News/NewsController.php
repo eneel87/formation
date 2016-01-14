@@ -12,6 +12,7 @@ use \FormBuilder\UserFormBuilder;
 use \OCFram\FormHandler;
 use \Entity\User;
 use OCFram\Application;
+use OCFram\Router;
 
 class NewsController extends BackController
 {
@@ -19,6 +20,8 @@ class NewsController extends BackController
   public function __construct(Application $app, $module, $action)
   {
     parent::__construct($app, $module, $action);
+
+    $this->page->addVar('router', new Router());
 
     $Member = $this->app->user()->getAttribute('admin');
 

@@ -23,18 +23,7 @@ abstract class Application
   {
     $router = new Router;
 
-    $router->buildRouteForApplication($this->name());
-
-    if ($this->name() == "Backend")
-    {
-      $router->buildRouteForApplication('Frontend');
-    }
-    else
-    {
-      $router->buildRouteForApplication('Backend');
-    }
-
-    var_dump($router::$routes);
+    $router->buildRoutesForApplication($this->name());
 
     try
     {

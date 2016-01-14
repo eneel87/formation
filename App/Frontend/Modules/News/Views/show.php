@@ -15,8 +15,8 @@
   if(($user->isAuthenticated() && $news->auteurId() == $user->getAttribute('admin')->id()) || ($user->isAuthenticated() && $user->getAttribute('admin')->level() == \Model\MemberManager::ADMINISTRATOR))
   {
     ?>
-    <p><a href="/admin/news-update-<?php echo $news->id();?>.html"><em>Modifier la News</em></a></p>
-  <?php echo $router->getUrl('Backend', 'Test', 'essai', array('id' =>$news->id(), 'name' => 'erwan'));
+    <p><a href="<?=$router->getUrl('Backend', 'News', 'update', array('id' => $news->id())) ?>"><em>Modifier la News</em></a></p>
+  <?php
   }
 ?>
 <p><?= nl2br(htmlspecialchars($news->contenu())) ?></p>
@@ -26,7 +26,7 @@
 <?php }
 if($user->isAuthenticated()) {
  ?>
-  <p><a href="/admin/commenter-<?= $news->id() ?>.html">Ajouter un commentaire</a></p>
+  <p><a href="<?=$router->getUrl('Backend', 'News', 'insertComment', array('news_id' => $news->id()))?>">Ajouter un commentaire</a></p>
 <?php } ?>
 <?php
 foreach ($comments as $comment)
@@ -46,8 +46,8 @@ foreach ($comments as $comment)
       {
         echo $dateAjoutFormated.'<em> (Modifié le '.$dateModifFormated.')</em>';
       }  ?>
-      <a href="admin/comment-update-<?= htmlspecialchars($comment->id()) ?>.html">Modifier</a> |
-      <a href="admin/comment-delete-<?= htmlspecialchars($comment->id()) ?>.html">Supprimer</a>
+      <a href="<?=$router->getUrl('Backend', 'News', 'updateComment', array('comment_id' => $comment->id())) ?>">Modifier</a> |
+      <a href="<?=$router->getUrl('Backend', 'News', 'deleteComment', array('comment_id' => $comment->id())) ?>">Supprimer</a>
     <?php } ?>
   </legend>
   <p><?= nl2br(htmlspecialchars($comment->contenu())) ?></p>

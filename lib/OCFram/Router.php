@@ -15,7 +15,7 @@ class Router
     }
   }
 
-  public function buildRouteForApplication($app)
+  public function buildRoutesForApplication($app)
   {
     $xml = new \DOMDocument;
     $xml->load(__DIR__.'/../../App/'.$app.'/Config/routes.xml');
@@ -73,36 +73,47 @@ class Router
     throw new \RuntimeException('Aucune route ne correspond à l\'URL', self::NO_ROUTE);
   }
 
-  public function getUrl($app, $module, $action, array $inputs)
+  public function getUrl ($app, $module, $action, array $inputs = array() )
   {
-   foreach (self::$routes[$app] as $route)
+    if (empty($routes[$app]))
     {
-      if ($route->module() == $module && $route->action() == $action)
-      {
-        $url = $route->pattern();
-        $vars = explode(',', implode(',',$route->varsNames()));
+      $this->buildRoutesForApplication($app);
+    }
 
-        // On vérifie que le nombre de variables passées en paramètres correspond au nombre de variables du pattern
-        if (count($vars) != count($inputs))
-        {
-          throw new \Exception('Nombre de variables incorrect');
+    foreach (self::$routes[$app] as $route)
+    {
+    	if($route->module() == $module && $route->action() == $action)
+    	{
+    		if(count($inputs) != count($route->varsNames()))
+		    {
+		    	throw new \Exception('Nombre de variables incorrect !');
+		    }
+
+            $varsNames = $route->varsNames();
+
+            if(empty($inputs) && empty($varsNames))
+            {
+              return $url = $route->pattern();
+            }
+
+            $url = $route->pattern();
+            $vars = explode(',', implode(',', $route->varsNames())); // vérifier
+
+            foreach($inputs as $key => $value)
+            {
+              if (!in_array($key, $vars))
+              {
+                throw new \Exception('La variable : '.$key.' n\'est pas dans l url!');
+              }
+
+              $position_start = strpos($url, '%'.$key.'%');
+              $length = strlen($key)+2;
+              $url = substr_replace($url, $value, $position_start, $length);
+            }
+
+            return $url;
         }
 
-        // On vérifie que le nom des variables passées en paramètres correspond aux placeholders de du pattern
-        foreach($inputs as $key => $value)
-        {
-          if (!in_array($key, $vars))
-          {
-            throw new \Exception('La variable : '.$key.' n\'est pas dans l url!');
-          }
-
-          $position_start = strpos($url, '%'.$key.'%');
-          $length = strlen($key)+2;
-          $url = substr_replace($url, $value, $position_start, $length);
-        }
-
-        return $url;
-      }
     }
   }
 }
