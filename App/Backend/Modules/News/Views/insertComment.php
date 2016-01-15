@@ -1,5 +1,6 @@
 <h2>Ajouter un commentaire</h2>
-<form action="<?=$form_action?>" data-ajax-validation="<?=$form_action_ajax_validation?>" method="post" id="insertCommentForm">
+<form action="<?=$form_action?>" data-ajax-validation="<?=$form_action_ajax_validation?>" data-newsid="<?=$news_id?>"
+      method="post" id="insertCommentForm">
   <p>
     <?= $form ?>
 

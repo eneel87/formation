@@ -29,7 +29,8 @@ class CommentsManagerPDO extends CommentsManager
     $q = $this->dao->prepare('SELECT *
                               FROM t_for_commentc
                               INNER JOIN t_for_memberc ON FCC_fk_FMC = FMC_id
-                              WHERE FCC_fk_FNC = :newsId');
+                              WHERE FCC_fk_FNC = :newsId
+                              ORDER BY FCC_id DESC');
 
     $q->bindValue(':newsId', $newsId, \PDO::PARAM_INT);
     $q->execute();

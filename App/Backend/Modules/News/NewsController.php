@@ -3,7 +3,6 @@ namespace App\Backend\Modules\News;
 
 use Model\MemberManager;
 use \OCFram\BackController;
-use OCFram\DataAttribute;
 use \OCFram\HTTPRequest;
 use \Entity\News;
 use \Entity\Comment;
@@ -12,8 +11,8 @@ use \FormBuilder\NewsFormBuilder;
 use \FormBuilder\UserFormBuilder;
 use \OCFram\FormHandler;
 use \Entity\User;
-use OCFram\Application;
-use OCFram\Router;
+use \OCFram\Application;
+use \OCFram\Router;
 
 class NewsController extends BackController
 {
@@ -229,16 +228,56 @@ class NewsController extends BackController
   {
     if ($request->method() == 'POST')
     {
+      $Comment = new Comment([
+          'newsId' => $request->postData('id'),
+          'auteurId' => $request->postData('member_id'),
+          'contenu' => $request->postData('contenu')
+      ]);
 
-      $message = $request->getData('news_id');
+      $FormBuilder = new CommentFormBuilder($Comment);
+      $FormBuilder->build();
 
-       exit(json_encode($message));
-    }
-    else
-    {
-      $message = "erreur";
 
-      exit(json_encode($message));
+      $Form = $FormBuilder->form();
+
+      $CommentManager = $this->managers->getManagerOf('Comments');
+
+      // On récupère le gestionnaire de formulaire (le paramètre de getManagerOf() est bien entendu à remplacer).
+      $FormHandler = new \OCFram\FormHandler($Form, $CommentManager, $request);
+
+      if ($FormHandler->process())
+      {
+        // Ici ne résident plus que les opérations à effectuer une fois l'entité du formulaire enregistrée
+        // (affichage d'un message informatif, redirection, etc.).
+        $this->app->user()->setFlash('Le commentaire a bien été ajouté, merci !');
+
+        $Comment = $CommentManager->getUnique($Comment->id());
+
+        $Router = new Router();
+
+        exit(json_encode(array(
+            'comment_id'=>$Comment->id(),
+            'comment_auteur_id'=>$Comment->auteurId(),
+            'comment_content'=>htmlspecialchars($Comment->contenu()),
+            'comment_date_ajout'=>$Comment->dateAjout()->format('d/m/Y à H\hi'),
+            'comment_date_modif'=>$Comment->dateModif()->format('d/m/Y à H\hi'),
+            'comment_update_url'=>$Router->getUrl('Backend', 'News', 'updateComment', array('comment_id' => $Comment->id())),
+            'comment_delete_url'=>$Router->getUrl('Backend', 'News', 'deleteComment', array('comment_id' => $Comment->id())),
+            'comment_member_login'=>htmlspecialchars($Comment->Membre()->login())
+        )));
+      }
+
+      //On stocke les erreurs du formulaire dans un tableau
+      $errors_a = [];
+
+      foreach($Form->fields() as $Field)
+      {
+        $Field->isValid();
+        $errors_a[$Field->id()] = $Field->errorMessage();
+      }
+
+      exit(json_encode($errors_a));
+
     }
   }
 
@@ -261,6 +300,7 @@ class NewsController extends BackController
     $formBuilder = new CommentFormBuilder($Comment);
     $formBuilder->build();
 
+
     $form = $formBuilder->form();
 
     // On récupère le gestionnaire de formulaire (le paramètre de getManagerOf() est bien entendu à remplacer).
@@ -281,7 +321,10 @@ class NewsController extends BackController
     $jsFiles_a = array();
     $jsFiles_a[] = '<script type="text/javascript" src="/js/CommentInsertUsingAjax.js"></script>';
 
+    $news_id = $request->getData('news_id');
+
     $this->page->addVar('form_action', $form_action);
+    $this->page->addVar('news_id', $news_id);
     $this->page->addVar('form_action_ajax_validation', $form_action_ajax_validation);
     $this->page->addVar('comment', $Comment);
     $this->page->addVar('form', $form->createView());

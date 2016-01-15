@@ -67,6 +67,56 @@ class NewsController extends BackController
       $this->app->httpResponse()->redirect404();
     }
 
+    // Si le formulaire a été envoyé.
+    if ($request->method() == 'POST')
+    {
+      $Comment = new Comment([
+          'newsId' => $request->getData('news_id'),
+          'auteurId' => $this->app->user()->getAttribute('admin')->id(),
+          'contenu' => $request->postData('contenu')
+      ]);
+    }
+    else
+    {
+      $Comment = new Comment;
+    }
+
+    $formBuilder = new CommentFormBuilder($Comment);
+    $formBuilder->build();
+
+
+    $form = $formBuilder->form();
+
+    // On récupère le gestionnaire de formulaire (le paramètre de getManagerOf() est bien entendu à remplacer).
+    $formHandler = new \OCFram\FormHandler($form, $this->managers->getManagerOf('Comments'), $request);
+
+    if ($formHandler->process())
+    {
+      // Ici ne résident plus que les opérations à effectuer une fois l'entité du formulaire enregistrée
+      // (affichage d'un message informatif, redirection, etc.).
+      $this->app->user()->setFlash('Le commentaire a bien été ajouté, merci !');
+      $this->app->httpResponse()->redirect('../news-'.$request->getData('news_id').'.html');
+    }
+
+    $Router = new Router();
+    $form_action = $Router->getUrl('Backend', 'News', 'insertComment', array('news_id' => $request->getData('id')));
+    $form_action_ajax_validation = $Router->getUrl('Backend', 'News', 'insertCommentUsingAjax', array('news_id' => $request->getData('id')));
+
+    $jsFiles_a = array();
+    $jsFiles_a[] = '<script type="text/javascript" src="/js/CommentInsertUsingAjax.js"></script>';
+
+    $news_id = $request->getData('id');
+
+    $this->page->addVar('news_id', $news_id);
+    $this->page->addVar('form_action', $form_action);
+    $this->page->addVar('form_action_ajax_validation', $form_action_ajax_validation);
+    $this->page->addVar('comment', $Comment);
+    $this->page->addVar('form', $form->createView());
+    $this->page->addVar('title', 'Ajout d\'un commentaire');
+    $this->page->addVar('jsFiles_a', $jsFiles_a);
+
+
+
     $this->page->addVar('router', new Router());
     $this->page->addVar('title', $news->titre());
     $this->page->addVar('news', $news);

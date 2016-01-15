@@ -58,4 +58,9 @@ class Form
     {
         $this->entity = $entity;
     }
+
+    public function fields()
+    {
+        return $this->fields;
+    }
 }

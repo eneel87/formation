@@ -68,6 +68,11 @@ abstract class Field
         return $this->id;
     }
 
+    public function errorMessage()
+    {
+        return $this->errorMessage;
+    }
+
     public function setLabel($label)
     {
         if (is_string($label))
