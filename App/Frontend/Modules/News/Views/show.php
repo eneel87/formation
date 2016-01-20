@@ -27,8 +27,7 @@
 if($user->isAuthenticated()) {
  ?>
     <h2>Ajouter un commentaire</h2>
-    <form action="<?=$form_action?>" data-ajax-validation="<?=$form_action_ajax_validation?>" data-newsid="<?=$news_id?>"
-          data-memberid="<?=$user->getAttribute('admin')->id()?>" method="post" id="insertCommentForm">
+    <form action="<?=$form_action?>" data-ajax-validation="<?=$form_action_ajax_validation?>" method="post" id="insertCommentForm">
         <p>
             <?= $form ?>
 
@@ -56,8 +55,8 @@ foreach ($comments as $comment)
         echo $dateAjoutFormated.'<em> (Modifié le '.$dateModifFormated.')</em>';
       }
       if (($user->isAuthenticated() && $comment->Membre()->id() == $user->getAttribute('admin')->id()) || ($user->isAuthenticated() && $user->getAttribute('admin')->level() == \Model\MemberManager::ADMINISTRATOR)) { ?>
-      <a href="<?=$router->getUrl('Backend', 'News', 'updateComment', array('comment_id' => $comment->id())) ?>">Modifier</a> |
-      <a href="<?=$router->getUrl('Backend', 'News', 'deleteComment', array('comment_id' => $comment->id())) ?>">Supprimer</a>
+      <a href="<?=$router->getUrl('Backend', 'News', 'updateComment', array('comment_id' => $comment->id())) ?>" data-ajax-update="<?=$router->getUrl('Backend', 'News', 'updateCommentUsingAjax', array('comment_id' => $comment->id())) ?>">Modifier</a> |
+      <a href="<?=$router->getUrl('Backend', 'News', 'deleteComment', array('comment_id' => $comment->id())) ?>" data-ajax-delete="<?=$router->getUrl('Backend', 'News', 'deleteCommentUsingAjax', array('comment_id' => $comment->id())) ?>" data-id="<?=$comment->id()?>">Supprimer</a>
     <?php } ?>
   </legend>
   <p><?= nl2br(htmlspecialchars($comment->contenu())) ?></p>

@@ -3,8 +3,15 @@ namespace OCFram;
 
 class Page extends ApplicationComponent
 {
+  protected $template;
   protected $contentFile;
   protected $vars = [];
+
+  public function __construct(Application $App)
+  {
+    parent::__construct($App);
+    $this->template = 'layout.php';
+  }
 
   public function addVar($var, $value)
   {
@@ -32,7 +39,7 @@ class Page extends ApplicationComponent
     $content = ob_get_clean();
 
     ob_start();
-      require __DIR__.'/../../App/'.$this->app->name().'/Templates/layout.php';
+      require __DIR__.'/../../App/'.$this->app->name().'/Templates/'.$this->template;
     return ob_get_clean();
   }
 
@@ -44,5 +51,20 @@ class Page extends ApplicationComponent
     }
 
     $this->contentFile = $contentFile;
+  }
+
+  public function setTemplate($template)
+  {
+    if (!is_string($template))
+    {
+      throw new \RuntimeException('Le template spécifié n\'existe pas');
+    }
+
+    $this->template = $template;
+  }
+
+  public function template()
+  {
+    $this->template;
   }
 }

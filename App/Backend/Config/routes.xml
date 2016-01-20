@@ -21,4 +21,8 @@
 	<route url="/admin/ajax_test-([0-9]+)" module="News" action="ajaxTest" vars="news_id"/>
 
 	<route url="/admin/comment-insert-([0-9]+)-using-ajax\.html" module="News" action="insertCommentUsingAjax" vars="news_id" pattern="/admin/comment-insert-%news_id%-using-ajax.html" />
+	<route url="/admin/comment-update-([0-9]+)-using-ajax\.html" module="News" action="updateCommentUsingAjax" vars="comment_id" pattern="/admin/comment-update-%comment_id%-using-ajax.html" />
+	<route url="/admin/comment-delete-([0-9]+)-using-ajax\.html" module="News" action="deleteCommentUsingAjax" vars="comment_id" pattern="/admin/comment-delete-%comment_id%-using-ajax.html" />
+
+	<route url="/admin/comment-stream-updating.php" module="News" action="commentStreamUpdatingUsingAjax" />
 </routes>

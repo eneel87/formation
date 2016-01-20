@@ -54,6 +54,38 @@ class CommentsManagerPDO extends CommentsManager
     return $comments;
   }
 
+  public function getFiveLast($last_insert_id)
+  {
+    $sql = 'SELECT *
+            FROM t_for_commentc
+            INNER JOIN t_for_memberc ON FCC_fk_FMC = FMC_id
+            ORDER BY FCC_id DESC
+            LIMIT 5 OFFSET :last_insert_id';
+
+    $requete = $this->dao->prepare($sql);
+
+    $requete->bindValue('last_insert_id', (int) $last_insert_id, \PDO::PARAM_INT);
+    $requete->execute();
+
+    $Comments_a = array();
+
+    while($data = $requete->fetch())
+    {
+      $Comment = new Comment();
+      $Comment->setAuteurId($data['FCC_fk_FMC']);
+      $Comment->setId($data['FCC_id']);
+      $Comment->setContenu($data['FCC_content']);
+      $Comment->setNewsId($data['FCC_fk_FNC']);
+      $Comment->setDateAjout(new \DateTime($data['FCC_dateadd']));
+      $Comment->setDateModif(new \DateTime($data['FCC_dateupdate']));
+      $Comment->setMembre(new Member(array('login'=>$data['FMC_login'], 'id'=>$data['FMC_id'])));
+
+      $comments[]=$Comment;
+    }
+
+    return $Comments_a;
+  }
+
   public function getUnique($comment_id)
   {
     $sql = 'SELECT *

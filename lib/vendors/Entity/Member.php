@@ -3,7 +3,7 @@ namespace Entity;
 
 use \OCFram\Entity;
 
-class Member extends Entity
+class Member extends Entity implements \JsonSerializable
 {
     protected $login,
               $password,
@@ -21,6 +21,17 @@ class Member extends Entity
     public function isValid()
     {
         return !(empty($this->login) || empty($this->password) || empty($this->level));
+    }
+
+    public function jsonSerialize()
+    {
+        $Membre_a = array(
+            'membre_id' => $this->id(),
+            'membre_login' => $this->login(),
+            'membre_levelNom' => $this->levelNom()
+        );
+
+        return $Membre_a;
     }
 
     public function setLogin($login)

@@ -4,7 +4,7 @@ namespace Entity;
 use \OCFram\Entity;
 use \Entity\Member;
 
-class Comment extends Entity
+class Comment extends Entity implements \JsonSerializable
 {
   protected $newsId,
             $auteurId,
@@ -19,6 +19,21 @@ class Comment extends Entity
   public function isValid()
   {
     return !(empty($this->auteurId) || empty($this->contenu));
+  }
+
+  public function jsonSerialize()
+  {
+    $Comment_a = array(
+      'comment_id' => $this->id(),
+      'comment_news_id' => $this->newsId(),
+      'comment_auteur_id' => $this->auteurId(),
+      'comment_content' => htmlspecialchars($this->contenu()),
+      'comment_date_ajout' => $this->dateAjout()->format('d/m/Y à H\hi'),
+      'comment_date_modif' => $this->dateModif()->format('d/m/Y à H\hi'),
+      'comment_member' => $this->Membre()
+    );
+
+    return $Comment_a;
   }
 
   public function setNewsId($newsId)

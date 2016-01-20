@@ -12,6 +12,7 @@ use \FormBuilder\UserFormBuilder;
 use \OCFram\FormHandler;
 use \Entity\User;
 use \OCFram\Application;
+use OCFram\Page;
 use \OCFram\Router;
 
 class NewsController extends BackController
@@ -129,10 +130,7 @@ class NewsController extends BackController
       $Comment = $ManagerComment->getUnique($request->getData('comment_id'));
       $Comment->setContenu($request->postData('contenu'));
     }
-    else
-    {
-      $Comment = $this->managers->getManagerOf('Comments')->get($request->getData('comment_id'));
-    }
+
 
     $formBuilder = new CommentFormBuilder($Comment);
     $formBuilder->build();
@@ -226,48 +224,35 @@ class NewsController extends BackController
 
   public function executeInsertCommentUsingAjax(HTTPRequest $request)
   {
-    if ($request->method() == 'POST')
+    $CommentManager = $this->managers->getManagerOf('Comments');
+    $NewsManager = $this->managers->getManagerOf('News');
+
+    $this->page->setTemplate('jsonLayout.php');
+
+    $News = $NewsManager->getUnique($request->getData('news_id'));
+
+    if(!$News)
     {
-      $Comment = new Comment([
-          'newsId' => $request->postData('id'),
-          'auteurId' => $request->postData('member_id'),
-          'contenu' => $request->postData('contenu')
-      ]);
+      $this->page->addVar('ajax', json_encode(array('success'=>false, 'erreurs'=>'Cette news n\existe pas !')));
+      return;
+    }
 
-      $FormBuilder = new CommentFormBuilder($Comment);
-      $FormBuilder->build();
+    $Comment = new Comment([
+        'newsId' => $request->getData('news_id'),
+        'auteurId' => $this->app->user()->getAttribute('admin')->id(),
+        'contenu' => $request->postData('contenu')
+    ]);
 
+    $FormBuilder = new CommentFormBuilder($Comment);
+    $FormBuilder->build();
 
-      $Form = $FormBuilder->form();
+    $Form = $FormBuilder->form();
 
-      $CommentManager = $this->managers->getManagerOf('Comments');
+    // On récupère le gestionnaire de formulaire (le paramètre de getManagerOf() est bien entendu à remplacer).
+    $FormHandler = new \OCFram\FormHandler($Form, $CommentManager, $request);
 
-      // On récupère le gestionnaire de formulaire (le paramètre de getManagerOf() est bien entendu à remplacer).
-      $FormHandler = new \OCFram\FormHandler($Form, $CommentManager, $request);
-
-      if ($FormHandler->process())
-      {
-        // Ici ne résident plus que les opérations à effectuer une fois l'entité du formulaire enregistrée
-        // (affichage d'un message informatif, redirection, etc.).
-        $this->app->user()->setFlash('Le commentaire a bien été ajouté, merci !');
-
-        $Comment = $CommentManager->getUnique($Comment->id());
-
-        $Router = new Router();
-
-        exit(json_encode(array(
-            'comment_id'=>$Comment->id(),
-            'comment_auteur_id'=>$Comment->auteurId(),
-            'comment_content'=>htmlspecialchars($Comment->contenu()),
-            'comment_date_ajout'=>$Comment->dateAjout()->format('d/m/Y à H\hi'),
-            'comment_date_modif'=>$Comment->dateModif()->format('d/m/Y à H\hi'),
-            'comment_update_url'=>$Router->getUrl('Backend', 'News', 'updateComment', array('comment_id' => $Comment->id())),
-            'comment_delete_url'=>$Router->getUrl('Backend', 'News', 'deleteComment', array('comment_id' => $Comment->id())),
-            'comment_member_login'=>htmlspecialchars($Comment->Membre()->login())
-        )));
-      }
-
-      //On stocke les erreurs du formulaire dans un tableau
+    if(!$FormHandler->process())
+    {
       $errors_a = [];
 
       foreach($Form->fields() as $Field)
@@ -276,9 +261,28 @@ class NewsController extends BackController
         $errors_a[$Field->id()] = $Field->errorMessage();
       }
 
-      exit(json_encode($errors_a));
 
+      $this->page->addVar('erreurs', json_encode(array('erreurs'=>$errors_a)));
+
+      return;
     }
+
+    $this->app->user()->setFlash('Le commentaire a bien été ajouté, merci !');
+
+    $Comment = $CommentManager->getUnique($Comment->id());
+    $Router = new Router();
+    $PageComment = new Page($this->app);
+    $PageComment->setContentFile(__DIR__.'/Views/comment.php');
+    $PageComment->addVar('comment',$Comment);
+    $PageComment->addVar('router',$Router);
+    $PageComment->setTemplate('jsonLayout.php');
+
+    $ajax = array('success'=>true,
+                  'html_value' => $PageComment->getGeneratedPage(),
+                  'validation_message' => 'Votre message a bien été ajouté.'
+    );
+
+    $this->page->addVar('ajax', json_encode($ajax));
   }
 
   public function executeInsertComment(HTTPRequest $request)
@@ -330,5 +334,122 @@ class NewsController extends BackController
     $this->page->addVar('form', $form->createView());
     $this->page->addVar('title', 'Ajout d\'un commentaire');
     $this->page->addVar('jsFiles_a', $jsFiles_a);
+  }
+
+ public function executeUpdateCommentUsingAjax(HTTPRequest $Request)
+ {
+   $ManagerComment = $this->managers->getManagerof('Comments');
+   $Comment = $ManagerComment->getUnique($Request->getData('comment_id'));
+   $Membre = $this->app->user()->getAttribute('admin');
+
+   $this->page->setTemplate('jsonLayout.php');
+
+   if(!$Comment)
+   {
+     $this->page->addVar('ajax', json_encode(array('success'=>false, 'erreurs'=>'Le commentaire n\'existe pas !')));
+     return;
+   }
+
+   if($Comment->Membre()->id() != $Membre->id() && $Membre->level() != MemberManager::ADMINISTRATOR)
+   {
+     $this->page->addVar('ajax', json_encode(array('success'=>false, 'erreurs'=>'Droits insuffisants')));
+     return;
+   }
+
+   $CommentPosted = new Comment();
+   $CommentPosted->setId($Request->getData('comment_id'));
+   $CommentPosted->setAuteurId($this->app->user()->getAttribute('admin')->id());
+   $CommentPosted->setContenu($Request->postData('contenu'));
+
+   $FormBuilder = new CommentFormBuilder($CommentPosted);
+   $FormBuilder->build();
+
+   $Form = $FormBuilder->form();
+
+   // On récupère le gestionnaire de formulaire (le paramètre de getManagerOf() est bien entendu à remplacer).
+   $FormHandler = new \OCFram\FormHandler($Form, $ManagerComment, $Request);
+
+   if(!$FormHandler->process())
+   {
+     $errors_a = [];
+
+     foreach($Form->fields() as $Field)
+     {
+       $Field->isValid();
+       $errors_a[$Field->id()] = $Field->errorMessage();
+     }
+
+     $this->page->setTemplate('jsonLayout.php');
+     $this->page->addVar('ajax', json_encode(array('success'=>false, 'erreurs'=>$errors_a)));
+
+     return;
+   }
+
+   $CommentPosted = $ManagerComment->getUnique($CommentPosted->id());
+
+   $this->page->addVar('ajax', json_encode(array('success'=>true, 'comment'=>$CommentPosted)));
+ }
+
+  public function executeDeleteCommentUsingAjax(HTTPRequest $Request)
+  {
+    $CommentManager = $this->managers->getManagerOf('Comments');
+    $Comment = $CommentManager->getUnique($Request->getData('comment_id'));
+
+    $this->page->setTemplate('jsonLayout.php');
+
+    if(!$Comment)
+    {
+      $this->page->addVar('ajax', json_encode(array('success'=>false, 'erreurs' => 'Le commentaire n\'existe pas !')));
+      return;
+    }
+
+    $Membre = $this->app->user()->getAttribute('admin');
+
+    if($Comment->auteurId()!= $Membre->id() && $Membre->level() != MemberManager::ADMINISTRATOR)
+    {
+      $this->page->addVar('ajax', json_encode(array('success'=>false, 'erreurs' => 'Droits insuffisants')));
+      return;
+    }
+
+    $CommentManager->delete($Request->getData('comment_id'));
+
+    $this->page->addVar('ajax', json_encode(array('success'=>true, 'validation_message'=>'Votre message a bien été supprimé')));
+
+  }
+
+  public function executeCommentStreamUpdatingUsingAjax(HTTPRequest $Request)
+  {
+    $CommentManager = $this->managers->getManagerOf('Comments');
+
+    $Comments_a = $CommentManager->getFiveLast($Request->postData('last_insert_id'));
+
+    $this->page->setTemplate('jsonLayout.php');
+
+    if(!$Comments_a)
+    {
+      $this->page->addVar('ajax', json_encode(array('success'=>false, 'message'=>'aucun nouveau commentaire')));
+      return;
+    }
+
+    $last_insert_id = end($Comments_a)->id();
+
+    $Router = new Router();
+
+    $PageComment = new Page($this->app);
+    $PageComment->setContentFile(__DIR__.'/Views/fiveLastComments.php');
+    $PageComment->addVar('Comment_a',$Comments_a);
+    $PageComment->addVar('router',$Router);
+    $PageComment->setTemplate('jsonLayout.php');
+
+    $ajax = array('success'=>true,
+                  'html_value' => $PageComment->getGeneratedPage(),
+                  'last_insert_id' => $last_insert_id,
+                  'validation_message' => 'Votre message a bien été ajouté.'
+    );
+
+    $this->page->addVar('ajax', json_encode($ajax));
+
+
+    exit(json_encode(array('success'=>true)));
   }
 }
