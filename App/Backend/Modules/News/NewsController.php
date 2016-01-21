@@ -267,18 +267,31 @@ class NewsController extends BackController
       return;
     }
 
-    $this->app->user()->setFlash('Le commentaire a bien été ajouté, merci !');
-
     $Comment = $CommentManager->getUnique($Comment->id());
     $Router = new Router();
-    $PageComment = new Page($this->app);
+
+   /* $PageComment = new Page($this->app);
     $PageComment->setContentFile(__DIR__.'/Views/comment.php');
     $PageComment->addVar('comment',$Comment);
     $PageComment->addVar('router',$Router);
-    $PageComment->setTemplate('jsonLayout.php');
+    $PageComment->setTemplate('jsonLayout.php');*/
+
+    $connected = false;
+    if($this->app->user()->getAttribute('admin'))
+    {
+      $connected = true;
+    }
+
+    $Comment->update_url = $Router->getUrl('Backend', 'News', 'updateComment', array('comment_id'=>$Comment->id()));
+    $Comment->delete_url = $Router->getUrl('Backend', 'News', 'deleteComment', array('comment_id'=>$Comment->id()));
+    $Comment->ajax_update_url = $Router->getUrl('Backend', 'News', 'updateCommentUsingAjax', array('comment_id'=>$Comment->id()));
+    $Comment->ajax_delete_url = $Router->getUrl('Backend', 'News', 'deleteCommentUsingAjax', array('comment_id'=>$Comment->id()));
 
     $ajax = array('success'=>true,
-                  'html_value' => $PageComment->getGeneratedPage(),
+                  //'html_value' => $PageComment->getGeneratedPage(),
+                  'comment'=>$Comment,
+                  'comment_id'=> $Comment->id(),
+                  'connected'=>$connected,
                   'validation_message' => 'Votre message a bien été ajouté.'
     );
 
@@ -415,41 +428,5 @@ class NewsController extends BackController
 
     $this->page->addVar('ajax', json_encode(array('success'=>true, 'validation_message'=>'Votre message a bien été supprimé')));
 
-  }
-
-  public function executeCommentStreamUpdatingUsingAjax(HTTPRequest $Request)
-  {
-    $CommentManager = $this->managers->getManagerOf('Comments');
-
-    $Comments_a = $CommentManager->getFiveLast($Request->postData('last_insert_id'));
-
-    $this->page->setTemplate('jsonLayout.php');
-
-    if(!$Comments_a)
-    {
-      $this->page->addVar('ajax', json_encode(array('success'=>false, 'message'=>'aucun nouveau commentaire')));
-      return;
-    }
-
-    $last_insert_id = end($Comments_a)->id();
-
-    $Router = new Router();
-
-    $PageComment = new Page($this->app);
-    $PageComment->setContentFile(__DIR__.'/Views/fiveLastComments.php');
-    $PageComment->addVar('Comment_a',$Comments_a);
-    $PageComment->addVar('router',$Router);
-    $PageComment->setTemplate('jsonLayout.php');
-
-    $ajax = array('success'=>true,
-                  'html_value' => $PageComment->getGeneratedPage(),
-                  'last_insert_id' => $last_insert_id,
-                  'validation_message' => 'Votre message a bien été ajouté.'
-    );
-
-    $this->page->addVar('ajax', json_encode($ajax));
-
-
-    exit(json_encode(array('success'=>true)));
   }
 }

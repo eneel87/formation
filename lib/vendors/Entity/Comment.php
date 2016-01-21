@@ -23,7 +23,9 @@ class Comment extends Entity implements \JsonSerializable
 
   public function jsonSerialize()
   {
-    $Comment_a = array(
+   $Comment_a = get_object_vars($this);
+
+    /*$Comment_a = array(
       'comment_id' => $this->id(),
       'comment_news_id' => $this->newsId(),
       'comment_auteur_id' => $this->auteurId(),
@@ -31,7 +33,10 @@ class Comment extends Entity implements \JsonSerializable
       'comment_date_ajout' => $this->dateAjout()->format('d/m/Y à H\hi'),
       'comment_date_modif' => $this->dateModif()->format('d/m/Y à H\hi'),
       'comment_member' => $this->Membre()
-    );
+    );*/
+
+    $Comment_a['dateAjout'] = $this->dateAjout()->format('d/m/Y à H\hi');
+    $Comment_a['dateModif'] = $this->dateModif()->format('d/m/Y à H\hi');
 
     return $Comment_a;
   }
@@ -106,5 +111,10 @@ class Comment extends Entity implements \JsonSerializable
   public function Membre()
   {
     return $this->Membre;
+  }
+
+  public function test()
+  {
+    return get_object_vars($this);
   }
 }

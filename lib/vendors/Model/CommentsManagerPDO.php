@@ -59,8 +59,9 @@ class CommentsManagerPDO extends CommentsManager
     $sql = 'SELECT *
             FROM t_for_commentc
             INNER JOIN t_for_memberc ON FCC_fk_FMC = FMC_id
-            ORDER BY FCC_id DESC
-            LIMIT 5 OFFSET :last_insert_id';
+            WHERE FCC_id > :last_insert_id
+            ORDER BY FCC_id';
+
 
     $requete = $this->dao->prepare($sql);
 
@@ -80,7 +81,7 @@ class CommentsManagerPDO extends CommentsManager
       $Comment->setDateModif(new \DateTime($data['FCC_dateupdate']));
       $Comment->setMembre(new Member(array('login'=>$data['FMC_login'], 'id'=>$data['FMC_id'])));
 
-      $comments[]=$Comment;
+      $Comments_a[]=$Comment;
     }
 
     return $Comments_a;

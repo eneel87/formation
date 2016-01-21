@@ -1,4 +1,4 @@
-<fieldset>
+<fieldset data-comment-id="<?=$comment->id()?>">
     <legend>
         Posté par <strong><?= htmlspecialchars($comment->Membre()->login()) ?></strong> le <?php
         $dateAjoutFormated= $comment->dateAjout()->format('d/m/Y à H\hi');

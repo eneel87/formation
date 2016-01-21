@@ -122,4 +122,46 @@ class NewsController extends BackController
     $this->page->addVar('news', $news);
     $this->page->addVar('comments', $this->managers->getManagerOf('Comments')->getListOf($news->id()));
   }
+
+  public function executeCommentStreamUpdatingUsingAjax(HTTPRequest $Request)
+  {
+    $CommentManager = $this->managers->getManagerOf('Comments');
+
+    $Comments_a = $CommentManager->getFiveLast($Request->postData('last_insert_id'));
+
+    $this->page->setTemplate('jsonLayout.php');
+
+    if(!$Comments_a)
+    {
+      $this->page->addVar('ajax', json_encode(array('success'=>false, 'message'=>'aucun nouveau commentaire')));
+      return;
+    }
+
+    $last_insert_id = end($Comments_a)->id();
+
+    $Router = new Router();
+
+    foreach($Comments_a as $Comment)
+    {
+      $Comment->comment_update_url = $Router->getUrl('Backend', 'News', 'updateComment', array('comment_id'=>$Comment->id()));
+      $Comment->comment_delete_url = $Router->getUrl('Backend', 'News', 'deleteComment', array('comment_id'=>$Comment->id()));
+      $Comment->comment_ajax_update_url = $Router->getUrl('Backend', 'News', 'updateCommentUsingAjax', array('comment_id'=>$Comment->id()));
+      $Comment->comment_ajax_delete_url = $Router->getUrl('Backend', 'News', 'deleteCommentUsingAjax', array('comment_id'=>$Comment->id()));
+    }
+
+    $connected = false;
+    if($this->app->user()->getAttribute('admin'))
+    {
+      $connected = true;
+    }
+
+    $ajax = array('success'=>true,
+        'last_insert_id' => $last_insert_id,
+        'comments'=>$Comments_a,
+        'validation_message' => 'Votre message a bien été ajouté.',
+        'connected'=>$connected
+    );
+
+    $this->page->addVar('ajax', json_encode($ajax));
+  }
 }

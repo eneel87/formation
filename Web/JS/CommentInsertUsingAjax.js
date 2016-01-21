@@ -2,9 +2,14 @@
 
 formulaire_valid = true;
 $main = $('#main');
-last_insert_id = 502;
+last_insert_id = $('fieldset:first').attr('data-comment-id');
 
 // Listener ////
+
+setInterval(function()
+{
+    commentStreamUpdate(last_insert_id);
+}, 20000);
 
 $("#submit").click(function (e) {
 
@@ -12,6 +17,7 @@ $("#submit").click(function (e) {
     var url = $Form.data('ajax-validation');
     var $textarea = $('#contenu');
     var contenu = $textarea.val().trim();
+    var temp = true;
 
 
     if(!contenu)
@@ -31,6 +37,8 @@ $("#submit").click(function (e) {
         e.preventDefault();
         return;
     }
+
+    commentStreamUpdate(last_insert_id);
 
     $.ajax({
         url: url,
@@ -69,25 +77,16 @@ $("#submit").click(function (e) {
 
             $('#validation_message').append(data.validation_message);
 
-            $Form.after(data.html_value);
-
-            if(data.comment_date_ajout != data.comment_date_modif)
-            {
-                $('legend[class="'+data.comment.comment_id+'"]')
-                    .append(
-                    $('<em></em>')
-                        .attr('id', 'comment_' + data.comment.comment_id)
-                        .append(
-                        'Modifié le ' + data.comment_date_modif
-                    )
-                )
-            }
+            buildComment(data.comment, data.connected);
 
             $textarea.val('');
+
+            window.last_insert_id = data.comment_id;
+
         }
     });
 
-    return false;
+    e.preventDefault();
 
 });
 
@@ -259,7 +258,7 @@ function event_submitUpdateManager(e, url, content)
             $fieldset.append(
                 $('<p></p>')
                     .append(
-                    data.comment.comment_content
+                    data.comment.contenu
                 )
             );
 
@@ -271,14 +270,14 @@ function event_submitUpdateManager(e, url, content)
                 $a.before(
                     $('<em></em>')
                         .append(
-                        ' (Modifié le '+ data.comment.comment_date_modif + ') '
+                        ' (Modifié le '+ data.comment.dateModif + ') '
                     )
                 );
 
                 return;
             }
 
-            $legend.children('em').text( ' (Modifié le '+ data.comment.comment_date_modif + ') ');
+            $legend.children('em').text( ' (Modifié le '+ data.comment.dateModif + ') ');
 
             formulaire_valid = true;
         }
@@ -291,7 +290,7 @@ function event_submitUpdateManager(e, url, content)
 function commentStreamUpdate(last_insert_id)
 {
    $.ajax({
-        url: '/admin/comment-stream-updating.php',
+        url: '/comment-stream-updating.php',
         type: 'POST', // Le type de la requête HTTP, ici devenu POST
         data:
         {
@@ -302,18 +301,125 @@ function commentStreamUpdate(last_insert_id)
 
             if(!data.success)
             {
-                window.last_insert_id++;
                 return;
             }
 
-            var $Form = $("#insertCommentForm");
+            buildComments(data.comments, data.connected);
 
-            $Form.after(data.html_value);
-
-            //window.last_insert_id = data.last_insert_id;
+            window.last_insert_id = data.last_insert_id;
         }
     });
+
+
+}
+
+function buildComments(comments, connected)
+{
+    for(var i=0; i<comments.length; i++)
+    {
+        buildComment(comments[i], connected);
+    }
+}
+
+function buildComment(comment, connected)
+{
+    var $Form = $("#insertCommentForm");
+    var $Main = $('#main');
+
+    if($Form.length==0)
+    {
+        if($('fieldset[data-comment-id="'+comment.id+'"]').length==0)
+        {
+            $Main.append(
+                $('<fieldset></fieldset>')
+                    .attr('data-comment-id', comment.id)
+                    .append(
+                    $('<legend></legend>')
+                        .append(
+                        'Posté par '
+                    )
+                        .append(
+                        $('<strong></strong>')
+                            .append(
+                            comment.Membre.membre_login
+                        )
+                    )
+                        .append(
+                        ' le ' +
+                        comment.dateAjout +
+                        ' '
+                    )
+                )
+                    .append(
+                    $('<p></p>')
+                        .append(
+                        comment.contenu
+                    )
+                )
+            )
+        }
+
+    }
+    else
+    {
+        if($('fieldset[data-comment-id="'+comment.id+'"]').length==0)
+        {
+            $Form.after(
+                $('<fieldset></fieldset>')
+                    .attr('data-comment-id', comment.id)
+                    .append(
+                    $('<legend></legend>')
+                        .append(
+                        'Posté par '
+                    )
+                        .append(
+                        $('<strong></strong>')
+                            .append(
+                            comment.Membre.membre_login
+                        )
+                    )
+                        .append(
+                        ' le ' +
+                        comment.dateAjout +
+                        ' '
+                    )
+                )
+                    .append(
+                    $('<p></p>')
+                        .append(
+                        comment.contenu
+                    )
+                )
+            )
+
+            if(connected)
+            {
+                $('fieldset[data-comment-id="'+comment.id+'"')
+                    .children('legend')
+                    .append(
+                    $('<a></a>')
+                        .attr('href', comment.update_url)
+                        .attr('data-ajax-update', comment.ajax_update_url)
+                        .append(
+                        'Modifier'
+                    )
+                )
+                    .append(
+                    ' | '
+                )
+                    .append(
+                    $('<a></a>')
+                        .attr('href', comment.delete_url)
+                        .attr('data-ajax-delete', comment.ajax_delete_url)
+                        .append(
+                        'Supprimer'
+                    )
+                );
+            }
+        }
+    }
+
+
 }
 
 
-setInterval(function(){commentStreamUpdate(last_insert_id);}, 3000);
