@@ -27,7 +27,7 @@ class Member extends Entity implements \JsonSerializable
     {
         $Membre_a = array(
             'membre_id' => $this->id(),
-            'membre_login' => $this->login(),
+            'membre_login' => htmlspecialchars($this->login()),
             'membre_levelNom' => $this->levelNom()
         );
 

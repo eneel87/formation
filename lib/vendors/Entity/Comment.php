@@ -37,6 +37,7 @@ class Comment extends Entity implements \JsonSerializable
 
     $Comment_a['dateAjout'] = $this->dateAjout()->format('d/m/Y à H\hi');
     $Comment_a['dateModif'] = $this->dateModif()->format('d/m/Y à H\hi');
+    $Comment_a['contenu'] = htmlspecialchars($this->contenu());
 
     return $Comment_a;
   }
