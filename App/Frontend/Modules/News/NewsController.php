@@ -1,6 +1,7 @@
 <?php
 namespace App\Frontend\Modules\News;
 
+use Model\MemberManager;
 use Model\NewsManager;
 use \OCFram\Application;
 use \OCFram\BackController;
@@ -147,6 +148,15 @@ class NewsController extends BackController
       $Comment->delete_url = $Router->getUrl('Backend', 'News', 'deleteComment', array('comment_id'=>$Comment->id()));
       $Comment->ajax_update_url = $Router->getUrl('Backend', 'News', 'updateCommentUsingAjax', array('comment_id'=>$Comment->id()));
       $Comment->ajax_delete_url = $Router->getUrl('Backend', 'News', 'deleteCommentUsingAjax', array('comment_id'=>$Comment->id()));
+
+      if($this->app->user()->getAttribute('admin'))
+      {
+        $Comment->modif_authorisation = ($this->app->user()->getAttribute('admin')->id() == $Comment->auteurId() || $this->app->user()->getAttribute('admin')->level() == MemberManager::ADMINISTRATOR) ? true : false;
+      }
+      else
+      {
+        $Comment->modif_authorisation = false;
+      }
     }
 
     $connected = false;

@@ -436,32 +436,33 @@ function buildComment(comment, connected)
 
             if(connected)
             {
-                $('fieldset[data-comment-id="'+comment.id+'"]')
-                    .children('legend')
-                    .append(
-                    $('<a></a>')
-                        .attr('href', comment.update_url)
-                        .attr('data-ajax-update', comment.ajax_update_url)
+                if(comment.modif_authorisation)
+                {
+                    $('fieldset[data-comment-id="'+comment.id+'"]')
+                        .children('legend')
                         .append(
-                        'Modifier'
+                        $('<a></a>')
+                            .attr('href', comment.update_url)
+                            .attr('data-ajax-update', comment.ajax_update_url)
+                            .append(
+                            'Modifier'
+                        )
                     )
-                )
-                    .append(
-                    ' | '
-                )
-                    .append(
-                    $('<a></a>')
-                        .attr('href', comment.delete_url)
-                        .attr('data-ajax-delete', comment.ajax_delete_url)
                         .append(
-                        'Supprimer'
+                        ' | '
                     )
-                );
+                        .append(
+                        $('<a></a>')
+                            .attr('href', comment.delete_url)
+                            .attr('data-ajax-delete', comment.ajax_delete_url)
+                            .append(
+                            'Supprimer'
+                        )
+                    );
+                }
             }
         }
     }
 }
-
-function appendComment(comment, connected)
 
 
