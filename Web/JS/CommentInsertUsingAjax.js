@@ -80,7 +80,7 @@ $("#submit").click(function (e) {
                 )
             );
 
-            buildComment(data.comment, data.connected);
+            buildComment(data.comment);
 
             $textarea.val('');
 
@@ -313,7 +313,7 @@ function commentStreamUpdate(last_insert_id, news_id, async)
                 return;
             }
 
-            buildComments(data.comments, data.connected);
+            buildComments(data.comments);
 
             window.last_insert_id = data.last_insert_id;
         }
@@ -322,15 +322,15 @@ function commentStreamUpdate(last_insert_id, news_id, async)
 
 }
 
-function buildComments(comments, connected)
+function buildComments(comments)
 {
     for(var i=0; i<comments.length; i++)
     {
-        buildComment(comments[i], connected);
+        buildComment(comments[i]);
     }
 }
 
-function buildComment(comment, connected)
+function buildComment(comment)
 {
     var $Form = $("#insertCommentForm");
     var $Main = $('#main');
@@ -432,34 +432,31 @@ function buildComment(comment, connected)
                         comment.contenu
                     )
                 )
-            )
+            );
 
-            if(connected)
+            if(comment.modif_authorisation)
             {
-                if(comment.modif_authorisation)
-                {
-                    $('fieldset[data-comment-id="'+comment.id+'"]')
-                        .children('legend')
+                $('fieldset[data-comment-id="'+comment.id+'"]')
+                    .children('legend')
+                    .append(
+                    $('<a></a>')
+                        .attr('href', comment.update_url)
+                        .attr('data-ajax-update', comment.ajax_update_url)
                         .append(
-                        $('<a></a>')
-                            .attr('href', comment.update_url)
-                            .attr('data-ajax-update', comment.ajax_update_url)
-                            .append(
-                            'Modifier'
-                        )
+                        'Modifier'
                     )
+                )
+                    .append(
+                    ' | '
+                )
+                    .append(
+                    $('<a></a>')
+                        .attr('href', comment.delete_url)
+                        .attr('data-ajax-delete', comment.ajax_delete_url)
                         .append(
-                        ' | '
+                        'Supprimer'
                     )
-                        .append(
-                        $('<a></a>')
-                            .attr('href', comment.delete_url)
-                            .attr('data-ajax-delete', comment.ajax_delete_url)
-                            .append(
-                            'Supprimer'
-                        )
-                    );
-                }
+                );
             }
         }
     }

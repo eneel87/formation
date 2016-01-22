@@ -276,10 +276,14 @@ class NewsController extends BackController
     $PageComment->addVar('router',$Router);
     $PageComment->setTemplate('jsonLayout.php');*/
 
-    $connected = false;
+
     if($this->app->user()->getAttribute('admin'))
     {
-      $connected = true;
+      $Comment->modif_authorisation = ($this->app->user()->getAttribute('admin')->id() == $Comment->auteurId() || $this->app->user()->getAttribute('admin')->level() == MemberManager::ADMINISTRATOR) ? true : false;
+    }
+    else
+    {
+      $Comment->modif_authorisation = false;
     }
 
     $Comment->update_url = $Router->getUrl('Backend', 'News', 'updateComment', array('comment_id'=>$Comment->id()));
@@ -291,7 +295,6 @@ class NewsController extends BackController
                   //'html_value' => $PageComment->getGeneratedPage(),
                   'comment'=>$Comment,
                   'comment_id'=> $Comment->id(),
-                  'connected'=>$connected,
                   'validation_message' => 'Votre message a bien été ajouté.'
     );
 
