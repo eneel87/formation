@@ -2,25 +2,25 @@
 
 formulaire_valid = true;
 $main = $('#main');
-last_insert_id = $('fieldset:first').attr('data-comment-id');
 news_id = $main.children('h2[data-news-id]').attr('data-news-id');
+
+
 
 // Listener ////
 
 setInterval(function()
 {
-    commentStreamUpdate(last_insert_id, news_id);
-}, 15000);
+    var last_insert_id = $('fieldset:first').attr('data-comment-id');
+    commentStreamUpdate(parseInt(last_insert_id), news_id );
+}, 500);
 
-$("#submit").click(function (e) {
-
-    var $Form = $("#insertCommentForm");
-    var url = $Form.data('ajax-validation');
+function insertComment(e)
+{
     var $textarea = $('#contenu');
     var contenu = $textarea.val().trim();
-    var temp = true;
-    var sendingBool = true;
-
+    var $Form = $("#insertCommentForm");
+    var url = $Form.data('ajax-validation');
+    var last_insert_id = $('fieldset:first').attr('data-comment-id');
 
     if(!contenu)
     {
@@ -42,12 +42,13 @@ $("#submit").click(function (e) {
 
     $.ajax({
         url: url,
-        type: 'POST', // Le type de la requête HTTP, ici devenu POST
+        type: 'POST',
         data: {
-            contenu: contenu
-        }, // On fait passer nos variables, exactement comme en GET, au script more_com.php
+            contenu: contenu,
+            last_insert_id: last_insert_id
+        },
         dataType: 'json',
-        success: function (data, statut) {
+        success: function(data){
 
             $('p .showError').remove();
             $('#validation_message').remove();
@@ -69,8 +70,6 @@ $("#submit").click(function (e) {
                 return;
             }
 
-            commentStreamUpdate(last_insert_id, news_id, false);
-
             $Form.append(
                 $('<p></p>')
                     .attr('id', 'validation_message')
@@ -80,18 +79,22 @@ $("#submit").click(function (e) {
                 )
             );
 
-            buildComment(data.comment);
+
+            $Form.after(data.html_value);
 
             $textarea.val('');
 
-            window.last_insert_id = data.comment_id;
+            //window.last_insert_id = $('fieldset:first').attr('data-comment-id');
         }
     });
+}
 
+$('#submit').click(function(e)
+{
     e.preventDefault();
+    insertComment(e);
+    return false;
 });
-
-
 
 $main.on('click', 'a[data-ajax-update]', function(e){
     comment_updateClickEventManager(e);
@@ -290,16 +293,17 @@ function event_submitUpdateManager(e, url, content)
     });
 }
 
-function commentStreamUpdate(last_insert_id, news_id, async)
+function commentStreamUpdate(last_insert_id, news_id )
 {
-    if( typeof(async) == 'undefined' ){
-        async = true;
-    }
+    var $Form = $("#insertCommentForm");
+
+    var old_id = last_insert_id;
+    var current_last_insert_id = parseInt($('fieldset:first').attr('data-comment-id'));
+
 
    $.ajax({
         url: '/comment-stream-updating.php',
         type: 'POST', // Le type de la requête HTTP, ici devenu POST
-        async: async,
         data:
         {
             last_insert_id: last_insert_id,
@@ -313,16 +317,16 @@ function commentStreamUpdate(last_insert_id, news_id, async)
                 return;
             }
 
-            buildComments(data.comments);
+           // window.last_insert_id = $('fieldset:first').attr('data-comment-id');
 
-            window.last_insert_id = data.last_insert_id;
+            $Form.after(data.html_value);
+
+            //$Form.after(data.html_value);
         }
     });
-
-
 }
 
-function buildComments(comments)
+/*function buildComments(comments)
 {
     for(var i=0; i<comments.length; i++)
     {
@@ -461,5 +465,5 @@ function buildComment(comment)
         }
     }
 }
-
+*/
 

@@ -267,34 +267,19 @@ class NewsController extends BackController
       return;
     }
 
+    $Comments_a = $CommentManager->getAfterId($News->id(), $request->postData('last_insert_id'));
+
     $Comment = $CommentManager->getUnique($Comment->id());
     $Router = new Router();
 
-   /* $PageComment = new Page($this->app);
-    $PageComment->setContentFile(__DIR__.'/Views/comment.php');
-    $PageComment->addVar('comment',$Comment);
+    $PageComment = new Page($this->app);
+    $PageComment->setContentFile(__DIR__.'/Views/lastComments.php');
+    $PageComment->addVar('Comments_a',$Comments_a);
     $PageComment->addVar('router',$Router);
-    $PageComment->setTemplate('jsonLayout.php');*/
-
-
-    if($this->app->user()->getAttribute('admin'))
-    {
-      $Comment->modif_authorisation = ($this->app->user()->getAttribute('admin')->id() == $Comment->auteurId() || $this->app->user()->getAttribute('admin')->level() == MemberManager::ADMINISTRATOR) ? true : false;
-    }
-    else
-    {
-      $Comment->modif_authorisation = false;
-    }
-
-    $Comment->update_url = $Router->getUrl('Backend', 'News', 'updateComment', array('comment_id'=>$Comment->id()));
-    $Comment->delete_url = $Router->getUrl('Backend', 'News', 'deleteComment', array('comment_id'=>$Comment->id()));
-    $Comment->ajax_update_url = $Router->getUrl('Backend', 'News', 'updateCommentUsingAjax', array('comment_id'=>$Comment->id()));
-    $Comment->ajax_delete_url = $Router->getUrl('Backend', 'News', 'deleteCommentUsingAjax', array('comment_id'=>$Comment->id()));
+    $PageComment->setTemplate('jsonLayout.php');
 
     $ajax = array('success'=>true,
-                  //'html_value' => $PageComment->getGeneratedPage(),
-                  'comment'=>$Comment,
-                  'comment_id'=> $Comment->id(),
+                  'html_value' => $PageComment->getGeneratedPage(),
                   'validation_message' => 'Votre message a bien été ajouté.'
     );
 

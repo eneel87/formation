@@ -19,6 +19,39 @@ class CommentsManagerPDO extends CommentsManager
     $comment->setId($this->dao->lastInsertId());
   }
 
+  public function getAfterId($news_id, $last_insert_id)
+  {
+    $sql = 'SELECT *
+            FROM T_FOR_commentc
+            INNER JOIN T_FOR_memberc ON FCC_fk_FMC = FMC_id
+            WHERE FCC_fk_FNC = :news_id AND FCC_id > :last_insert_id
+            ORDER BY FCC_id DESC';
+
+    $requete = $this->dao->prepare($sql);
+
+    $requete->bindValue('news_id', $news_id, \PDO::PARAM_INT);
+    $requete->bindValue('last_insert_id', $last_insert_id, \PDO::PARAM_INT);
+    $requete->execute();
+
+    $Comments_a = array();
+
+    while($data = $requete->fetch())
+    {
+      $Comment = new Comment();
+      $Comment->setAuteurId($data['FCC_fk_FMC']);
+      $Comment->setId($data['FCC_id']);
+      $Comment->setContenu($data['FCC_content']);
+      $Comment->setNewsId($data['FCC_fk_FNC']);
+      $Comment->setDateAjout(new \DateTime($data['FCC_dateadd']));
+      $Comment->setDateModif(new \DateTime($data['FCC_dateupdate']));
+      $Comment->setMembre(new Member(array('login'=>$data['FMC_login'], 'id'=>$data['FMC_id'])));
+
+      $Comments_a[]=$Comment;
+    }
+
+    return $Comments_a;
+  }
+
   public function getListOf($newsId)
   {
     if (!is_int($newsId))

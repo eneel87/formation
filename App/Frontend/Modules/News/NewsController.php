@@ -11,6 +11,7 @@ use \FormBuilder\CommentFormBuilder;
 use \OCFram\FormHandler;
 use OCFram\Router;
 use OCFram\Url;
+use OCFram\Page;
 
 
 class NewsController extends BackController
@@ -128,7 +129,7 @@ class NewsController extends BackController
   {
     $CommentManager = $this->managers->getManagerOf('Comments');
 
-    $Comments_a = $CommentManager->getFiveLast($Request->postData('last_insert_id'), $Request->postData('news_id'));
+    $Comments_a = $CommentManager->getAfterId($Request->postData('news_id'), $Request->postData('last_insert_id'));
 
     $this->page->setTemplate('jsonLayout.php');
 
@@ -138,38 +139,17 @@ class NewsController extends BackController
       return;
     }
 
-    $last_insert_id = end($Comments_a)->id();
-
     $Router = new Router();
 
-    foreach($Comments_a as $Comment)
-    {
-      $Comment->update_url = $Router->getUrl('Backend', 'News', 'updateComment', array('comment_id'=>$Comment->id()));
-      $Comment->delete_url = $Router->getUrl('Backend', 'News', 'deleteComment', array('comment_id'=>$Comment->id()));
-      $Comment->ajax_update_url = $Router->getUrl('Backend', 'News', 'updateCommentUsingAjax', array('comment_id'=>$Comment->id()));
-      $Comment->ajax_delete_url = $Router->getUrl('Backend', 'News', 'deleteCommentUsingAjax', array('comment_id'=>$Comment->id()));
-
-      if($this->app->user()->getAttribute('admin'))
-      {
-        $Comment->modif_authorisation = ($this->app->user()->getAttribute('admin')->id() == $Comment->auteurId() || $this->app->user()->getAttribute('admin')->level() == MemberManager::ADMINISTRATOR) ? true : false;
-      }
-      else
-      {
-        $Comment->modif_authorisation = false;
-      }
-    }
-
-    $connected = false;
-    if($this->app->user()->getAttribute('admin'))
-    {
-      $connected = true;
-    }
+    $PageComment = new Page($this->app);
+    $PageComment->setContentFile(__DIR__.'/Views/lastComments.php');
+    $PageComment->addVar('Comments_a',$Comments_a);
+    $PageComment->addVar('router',$Router);
+    $PageComment->setTemplate('jsonLayout.php');
 
     $ajax = array('success'=>true,
-        'last_insert_id' => $last_insert_id,
-        'comments'=>$Comments_a,
-        'validation_message' => 'Votre message a bien été ajouté.',
-        'connected'=>$connected
+        'html_value' => $PageComment->getGeneratedPage(),
+        'validation_message' => 'Votre message a bien été ajouté.'
     );
 
     $this->page->addVar('ajax', json_encode($ajax));
