@@ -54,18 +54,19 @@ class CommentsManagerPDO extends CommentsManager
     return $comments;
   }
 
-  public function getFiveLast($last_insert_id)
+  public function getFiveLast($last_insert_id, $news_id)
   {
     $sql = 'SELECT *
             FROM t_for_commentc
             INNER JOIN t_for_memberc ON FCC_fk_FMC = FMC_id
-            WHERE FCC_id > :last_insert_id
+            WHERE FCC_fk_FNC = :news_id AND FCC_id > :last_insert_id
             ORDER BY FCC_id';
 
 
     $requete = $this->dao->prepare($sql);
 
     $requete->bindValue('last_insert_id', (int) $last_insert_id, \PDO::PARAM_INT);
+    $requete->bindValue('news_id', $news_id, \PDO::PARAM_INT);
     $requete->execute();
 
     $Comments_a = array();

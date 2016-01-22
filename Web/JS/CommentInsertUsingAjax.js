@@ -3,13 +3,14 @@
 formulaire_valid = true;
 $main = $('#main');
 last_insert_id = $('fieldset:first').attr('data-comment-id');
+news_id = $main.children('h2[data-news-id]').attr('data-news-id');
 
 // Listener ////
 
 setInterval(function()
 {
-    commentStreamUpdate(last_insert_id);
-}, 20000);
+    commentStreamUpdate(last_insert_id, news_id);
+}, 15000);
 
 $("#submit").click(function (e) {
 
@@ -18,6 +19,7 @@ $("#submit").click(function (e) {
     var $textarea = $('#contenu');
     var contenu = $textarea.val().trim();
     var temp = true;
+    var sendingBool = true;
 
 
     if(!contenu)
@@ -37,8 +39,6 @@ $("#submit").click(function (e) {
         e.preventDefault();
         return;
     }
-
-    commentStreamUpdate(last_insert_id);
 
     $.ajax({
         url: url,
@@ -69,26 +69,29 @@ $("#submit").click(function (e) {
                 return;
             }
 
+            commentStreamUpdate(last_insert_id, news_id, false);
+
             $Form.append(
                 $('<p></p>')
                     .attr('id', 'validation_message')
                     .css('color', 'green')
+                    .append(
+                    data.validation_message
+                )
             );
-
-            $('#validation_message').append(data.validation_message);
 
             buildComment(data.comment, data.connected);
 
             $textarea.val('');
 
             window.last_insert_id = data.comment_id;
-
         }
     });
 
     e.preventDefault();
-
 });
+
+
 
 $main.on('click', 'a[data-ajax-update]', function(e){
     comment_updateClickEventManager(e);
@@ -287,14 +290,20 @@ function event_submitUpdateManager(e, url, content)
     });
 }
 
-function commentStreamUpdate(last_insert_id)
+function commentStreamUpdate(last_insert_id, news_id, async)
 {
+    if( typeof(async) == 'undefined' ){
+        async = true;
+    }
+
    $.ajax({
         url: '/comment-stream-updating.php',
         type: 'POST', // Le type de la requête HTTP, ici devenu POST
+        async: async,
         data:
         {
-            last_insert_id: last_insert_id
+            last_insert_id: last_insert_id,
+            news_id: news_id
         }, // On fait passer nos variables, exactement comme en GET, au script more_com.php
         dataType: 'json',
         success: function (data, statut) {
@@ -325,10 +334,11 @@ function buildComment(comment, connected)
 {
     var $Form = $("#insertCommentForm");
     var $Main = $('#main');
+    var $Fieldset = $Main.children('fieldset:first');
 
     if($Form.length==0)
     {
-        if($('fieldset[data-comment-id="'+comment.id+'"]').length==0)
+        if($Fieldset.length==0)
         {
             $Main.append(
                 $('<fieldset></fieldset>')
@@ -356,9 +366,41 @@ function buildComment(comment, connected)
                         comment.contenu
                     )
                 )
-            )
+            );
         }
-
+        else
+        {
+            if($('fieldset[data-comment-id="'+comment.id+'"]').length==0)
+            {
+                $Fieldset.before(
+                    $('<fieldset></fieldset>')
+                        .attr('data-comment-id', comment.id)
+                        .append(
+                        $('<legend></legend>')
+                            .append(
+                            'Posté par '
+                        )
+                            .append(
+                            $('<strong></strong>')
+                                .append(
+                                comment.Membre.membre_login
+                            )
+                        )
+                            .append(
+                            ' le ' +
+                            comment.dateAjout +
+                            ' '
+                        )
+                    )
+                        .append(
+                        $('<p></p>')
+                            .append(
+                            comment.contenu
+                        )
+                    )
+                );
+            }
+        }
     }
     else
     {
@@ -394,7 +436,7 @@ function buildComment(comment, connected)
 
             if(connected)
             {
-                $('fieldset[data-comment-id="'+comment.id+'"')
+                $('fieldset[data-comment-id="'+comment.id+'"]')
                     .children('legend')
                     .append(
                     $('<a></a>')
@@ -418,8 +460,8 @@ function buildComment(comment, connected)
             }
         }
     }
-
-
 }
+
+function appendComment(comment, connected)
 
 

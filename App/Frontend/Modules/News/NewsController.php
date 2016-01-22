@@ -127,7 +127,7 @@ class NewsController extends BackController
   {
     $CommentManager = $this->managers->getManagerOf('Comments');
 
-    $Comments_a = $CommentManager->getFiveLast($Request->postData('last_insert_id'));
+    $Comments_a = $CommentManager->getFiveLast($Request->postData('last_insert_id'), $Request->postData('news_id'));
 
     $this->page->setTemplate('jsonLayout.php');
 
@@ -143,10 +143,10 @@ class NewsController extends BackController
 
     foreach($Comments_a as $Comment)
     {
-      $Comment->comment_update_url = $Router->getUrl('Backend', 'News', 'updateComment', array('comment_id'=>$Comment->id()));
-      $Comment->comment_delete_url = $Router->getUrl('Backend', 'News', 'deleteComment', array('comment_id'=>$Comment->id()));
-      $Comment->comment_ajax_update_url = $Router->getUrl('Backend', 'News', 'updateCommentUsingAjax', array('comment_id'=>$Comment->id()));
-      $Comment->comment_ajax_delete_url = $Router->getUrl('Backend', 'News', 'deleteCommentUsingAjax', array('comment_id'=>$Comment->id()));
+      $Comment->update_url = $Router->getUrl('Backend', 'News', 'updateComment', array('comment_id'=>$Comment->id()));
+      $Comment->delete_url = $Router->getUrl('Backend', 'News', 'deleteComment', array('comment_id'=>$Comment->id()));
+      $Comment->ajax_update_url = $Router->getUrl('Backend', 'News', 'updateCommentUsingAjax', array('comment_id'=>$Comment->id()));
+      $Comment->ajax_delete_url = $Router->getUrl('Backend', 'News', 'deleteCommentUsingAjax', array('comment_id'=>$Comment->id()));
     }
 
     $connected = false;

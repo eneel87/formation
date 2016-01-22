@@ -9,7 +9,7 @@
     }
     ?>
   </em>, le <?= $news->dateAjout()->format('d/m/Y à H\hi') ?></p>
-<h2><?= htmlspecialchars($news->titre()) ?></h2>
+<h2 data-news-id="<?=$news->id()?>"><?= htmlspecialchars($news->titre()) ?></h2>
 <?php
 
   if(($user->isAuthenticated() && $news->auteurId() == $user->getAttribute('admin')->id()) || ($user->isAuthenticated() && $user->getAttribute('admin')->level() == \Model\MemberManager::ADMINISTRATOR))
