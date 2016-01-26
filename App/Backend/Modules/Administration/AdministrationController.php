@@ -12,8 +12,11 @@ use OCFram\Router;
 
 class AdministrationController extends BackController
 {
+    use \OCFram\Run;
+
     public function executeIndex(HTTPRequest$request)
     {
+        $this->run();
         $this->page->addVar('title', 'Administration');
         $this->page->addVar('router', new Router());
     }

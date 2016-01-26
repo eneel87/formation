@@ -15,8 +15,11 @@ use \OCFram\Application;
 use OCFram\Page;
 use \OCFram\Router;
 
+
 class NewsController extends BackController
 {
+
+  use \OCFram\Run;
 
   public function __construct(Application $app, $module, $action)
   {
@@ -53,6 +56,7 @@ class NewsController extends BackController
   }
   public function executeIndex(HTTPRequest $request)
   {
+    $this->run();
     $this->page->addVar('title', 'Gestion des news');
 
     $ManagerNews = $this->managers->getmanagerof('news');
@@ -92,6 +96,7 @@ class NewsController extends BackController
   {
     $this->processForm($request);
 
+    $this->run();
     $this->page->addVar('title', 'Ajout d\'une news');
   }
 
@@ -99,6 +104,7 @@ class NewsController extends BackController
   {
     $this->processForm($request);
 
+    $this->run();
     $this->page->addVar('title', 'Modification d\'une news');
   }
 
@@ -122,6 +128,7 @@ class NewsController extends BackController
       $this->app->httpResponse()->redirect('/admin/');
     }
 
+    $this->run();
     $this->page->addVar('title', 'Modification d\'un commentaire');
 
     if ($request->method() == 'POST')
@@ -191,6 +198,7 @@ class NewsController extends BackController
       $this->app->httpResponse()->redirect('/admin/news.html');
     }
 
+    $this->run();
     $this->page->addVar('form', $form->createView());
   }
 
@@ -343,6 +351,7 @@ class NewsController extends BackController
 
     $news_id = $request->getData('news_id');
 
+    $this->run();
     $this->page->addVar('form_action', $form_action);
     $this->page->addVar('news_id', $news_id);
     $this->page->addVar('form_action_ajax_validation', $form_action_ajax_validation);

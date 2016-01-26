@@ -13,6 +13,8 @@ use OCFram\Router;
 
 class MemberController extends BackController
 {
+    use \OCFram\Run;
+
     public function __construct(Application $app, $module, $action)
     {
         parent::__construct($app, $module, $action);
@@ -29,6 +31,7 @@ class MemberController extends BackController
     {
         $manager = $this->managers->getManagerOf('Member');
 
+        $this->run();
         $this->page->addvar('listeMembers', $manager->getlist());
         $this->page->addVar('nombreMembers', $manager->count());
     }
@@ -36,6 +39,7 @@ class MemberController extends BackController
     public function executeInsert(HTTPRequest $request)
     {
         $this->page->addVar('title', 'Ajout d\'un utilisateur');
+        $this->run();
 
         $this->processForm($request);
     }
@@ -43,6 +47,7 @@ class MemberController extends BackController
     public function executeUpdate(HTTPRequest $request)
     {
         $this->page->addVar('title', 'Modification d\'un utilisateur');
+        $this->run();
 
         $this->processForm($request);
     }
@@ -96,6 +101,7 @@ class MemberController extends BackController
         }
 
         $this->page->addVar('form', $form->createView());
+        $this->run();
     }
 
     public function executeDelete(HTTPRequest $request)
