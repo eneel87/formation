@@ -10,7 +10,7 @@ news_id = $main.children('h2[data-news-id]').attr('data-news-id');
 setInterval(function()
 {
     commentStreamUpdate(last_insert_id, news_id);
-}, 15000);
+}, 500);
 
 $("#submit").click(function (e) {
 
