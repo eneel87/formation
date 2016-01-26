@@ -6,6 +6,7 @@ class Page extends ApplicationComponent
   protected $template;
   protected $contentFile;
   protected $vars = [];
+  protected $menu;
 
   public function __construct(Application $App)
   {
@@ -38,9 +39,30 @@ class Page extends ApplicationComponent
       require $this->contentFile;
     $content = ob_get_clean();
 
+    $menu = $this->getMenu();
+
     ob_start();
       require __DIR__.'/../../App/'.$this->app->name().'/Templates/'.$this->template;
     return ob_get_clean();
+  }
+
+  public function getMenu()
+  {
+    $menu_view = __DIR__.'/../../App/'.$this->app->name().'/Templates/menu.php';
+
+    if (!file_exists($menu_view))
+    {
+      throw new \RuntimeException('La vue spécifiée pour le menu n\'existe pas');
+    }
+
+    $router = new Router();
+    $user = $this->app->user();
+
+    ob_start();
+      require $menu_view;
+    $menu = ob_get_clean();
+
+    return $menu;
   }
 
   public function setContentFile($contentFile)
