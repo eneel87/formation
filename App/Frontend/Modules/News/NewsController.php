@@ -16,6 +16,7 @@ use OCFram\Page;
 
 class NewsController extends BackController
 {
+  use \OCFram\Run;
 
   public function __construct(Application $app, $module, $action)
   {
@@ -31,6 +32,7 @@ class NewsController extends BackController
     
     // On ajoute une définition pour le titre.
     $this->page->addVar('title', 'Liste des '.$nombreNews.' dernières news');
+    $this->run();
     
     // On récupère le manager des news.
     /** @var NewsManager $manager */
@@ -67,6 +69,7 @@ class NewsController extends BackController
     if (empty($news))
     {
       $this->app->httpResponse()->redirect404();
+      $this->run();
     }
 
     // Si le formulaire a été envoyé.
@@ -109,6 +112,7 @@ class NewsController extends BackController
 
     $news_id = $request->getData('id');
 
+    $this->run();
     $this->page->addVar('news_id', $news_id);
     $this->page->addVar('form_action', $form_action);
     $this->page->addVar('form_action_ajax_validation', $form_action_ajax_validation);

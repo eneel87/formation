@@ -10,12 +10,14 @@ use \Entity\Member;
 
 class ConnexionController extends BackController
 {
+  use \OCFram\Run;
 
   const LEVEL_AUTHORISATION = 2;
 
   public function executeIndex(HTTPRequest $request)
   {
     $this->page->addVar('title', 'Connexion');
+    $this->run();
 
     if ($request->postExists('login') && $request->postExists('password'))
     {
