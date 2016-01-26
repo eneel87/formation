@@ -79,8 +79,13 @@ function insertComment(e)
                 )
             );
 
-
-            $Form.after(data.html_value);
+            for(var key in data.comments)
+            {
+               if($('fieldset[data-comment-id="'+key+'"]').length==0)
+               {
+                   $Form.after(data.comments[key]);
+               }
+            }
 
             $textarea.val('');
 
@@ -319,7 +324,13 @@ function commentStreamUpdate(last_insert_id, news_id )
 
            // window.last_insert_id = $('fieldset:first').attr('data-comment-id');
 
-            $Form.after(data.html_value);
+            for(var key in data.comments)
+            {
+                if($('fieldset[data-comment-id="'+key+'"]').length==0)
+                {
+                    $Form.after(data.comments[key]);
+                }
+            }
 
             //$Form.after(data.html_value);
         }

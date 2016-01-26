@@ -269,17 +269,22 @@ class NewsController extends BackController
 
     $Comments_a = $CommentManager->getAfterId($News->id(), $request->postData('last_insert_id'));
 
-    $Comment = $CommentManager->getUnique($Comment->id());
+    $comments_views_a = array();
     $Router = new Router();
 
-    $PageComment = new Page($this->app);
-    $PageComment->setContentFile(__DIR__.'/Views/lastComments.php');
-    $PageComment->addVar('Comments_a',$Comments_a);
-    $PageComment->addVar('router',$Router);
-    $PageComment->setTemplate('jsonLayout.php');
+    foreach($Comments_a as $Comment)
+    {
+      $PageComment = new Page($this->app);
+      $PageComment->setContentFile(__DIR__.'/Views/comment.php');
+      $PageComment->addVar('comment',$Comment);
+      $PageComment->addVar('router',$Router);
+      $PageComment->setTemplate('jsonLayout.php');
+
+      $comments_views_a[$Comment->id()]=$PageComment->getGeneratedPage();
+    }
 
     $ajax = array('success'=>true,
-                  'html_value' => $PageComment->getGeneratedPage(),
+                  'comments' => $comments_views_a,
                   'validation_message' => 'Votre message a bien été ajouté.'
     );
 
