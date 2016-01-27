@@ -29,7 +29,7 @@ class ConnexionController extends BackController
       if($Member && $Member->level()<= self::LEVEL_AUTHORISATION)
       {
         $this->app->user()->setAuthenticated(true);
-        $this->app->user()->setAttribute('admin', $Member);
+        $this->app->user()->setAttribute('user', $Member);
         $this->app->httpResponse()->redirect('.');
       }
       else
@@ -42,7 +42,7 @@ class ConnexionController extends BackController
   public  function executeDeconnexion(HTTPRequest $request){
 
     $this->app->user()->setAuthenticated(false);
-    $this->app->user()->unsetAttribute('admin');
+    $this->app->user()->unsetAttribute('user');
     $this->app->user()->setFlash('Vous avez été correctement déconnecté.');
     $this->app->httpResponse()->redirect('/');
 

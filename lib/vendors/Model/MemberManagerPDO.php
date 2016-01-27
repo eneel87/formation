@@ -6,6 +6,56 @@ use Entity\Member;
 
 class MemberManagerPDO extends MemberManager
 {
+    public function getMemberUsingLogin($login)
+    {
+        $sql = 'SELECT *
+                FROM T_FOR_memberc
+                WHERE FMC_login = :login';
+
+        $requete = $this->dao->prepare($sql);
+        $requete->bindValue(':login', $login, \PDO::PARAM_STR);
+        $requete->execute();
+
+        $data = $requete->fetch();
+
+        $Member = new Member();
+        $Member->setId($data['FMC_id'])
+            ->setLogin($data['FMC_login'])
+            ->setPassword($data['FMC_password'])
+            ->setEmail($data['FMC_email'])
+            ->setDateAjout(new \DateTime($data['FMC_dateadd']))
+            ->setDateModif(new \DateTime($data['FMC_dateupdate']));
+
+        $requete->closeCursor();
+
+        return $Member;
+    }
+
+    public function getMemberUsingEmail($email)
+    {
+        $sql = 'SELECT *
+                FROM T_FOR_memberc
+                WHERE FMC_login = :email';
+
+        $requete = $this->dao->prepare($sql);
+        $requete->bindValue(':email', $email, \PDO::PARAM_STR);
+        $requete->execute();
+
+        $data = $requete->fetch();
+
+        $Member = new Member();
+        $Member->setId($data['FMC_id'])
+            ->setLogin($data['FMC_login'])
+            ->setPassword($data['FMC_password'])
+            ->setEmail($data['FMC_email'])
+            ->setDateAjout(new \DateTime($data['FMC_dateadd']))
+            ->setDateModif(new \DateTime($data['FMC_dateupdate']));
+
+        $requete->closeCursor();
+
+        return $Member;
+    }
+
     public function matchMember(Member $Member)
     {
         $sql = 'SELECT COUNT(*)
@@ -94,10 +144,11 @@ class MemberManagerPDO extends MemberManager
 
     public function add(Member $Member)
     {
-        $requete = $this->dao->prepare('INSERT INTO T_FOR_memberc SET FMC_login = :login, FMC_password = :password, FMC_fk_FMY= :level, FMC_dateadd = NOW(), FMC_dateupdate = NOW()');
+        $requete = $this->dao->prepare('INSERT INTO T_FOR_memberc SET FMC_login = :login, FMC_password = :password, FMC_email = :email, FMC_fk_FMY= :level, FMC_dateadd = NOW(), FMC_dateupdate = NOW()');
 
         $requete->bindValue(':login', $Member->login(), \PDO::PARAM_STR);
         $requete->bindValue(':password', $Member->password(), \PDO::PARAM_STR);
+        $requete->bindValue(':email', $Member->email(), \PDO::PARAM_STR);
         $requete->bindValue(':level', $Member->level(), \PDO::PARAM_INT);
 
         $requete->execute();

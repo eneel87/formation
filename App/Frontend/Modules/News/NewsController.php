@@ -77,7 +77,7 @@ class NewsController extends BackController
     {
       $Comment = new Comment([
           'newsId' => $request->getData('news_id'),
-          'auteurId' => $this->app->user()->getAttribute('admin')->id(),
+          'auteurId' => $this->app->user()->getAttribute('user')->id(),
           'contenu' => $request->postData('contenu')
       ]);
     }

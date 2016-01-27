@@ -4,10 +4,13 @@ namespace OCFram;
 abstract class FormBuilder
 {
     protected $form;
+    protected $Manager;
 
-    public function __construct(Entity $entity)
+    public function __construct(Entity $entity, Manager $Manager=null)
     {
         $this->setForm(new Form($entity));
+
+        $this->Manager = $Manager;
     }
 
     abstract public function build();
@@ -20,5 +23,10 @@ abstract class FormBuilder
     public function form()
     {
         return $this->form;
+    }
+
+    public function Manager()
+    {
+        return $this->Manager;
     }
 }

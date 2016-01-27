@@ -1,3 +1,4 @@
+<h2>Gestion des Utilisateurs</h2>
 <ul>
     <li><a href="<?=$router->getUrl('Backend', 'Member', 'insert') ?>">Ajouter un utilisateur</a></li>
 </ul>

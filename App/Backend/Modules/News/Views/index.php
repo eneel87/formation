@@ -1,3 +1,4 @@
+<h2>Gestion des News</h2>
 <ul>
   <li><a href="<?=$router->getUrl('Backend', 'News', 'insert') ?>">Ajouter une news</a></li>
 </ul>

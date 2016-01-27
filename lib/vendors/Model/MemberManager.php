@@ -8,17 +8,18 @@ abstract class MemberManager extends Manager
 {
 
     const ADMINISTRATOR=1;
+    const WRITER=2;
 
     /**
-     * Méthode permettant de vérifier si un utilisateur est en base de données
+     * Mï¿½thode permettant de vï¿½rifier si un utilisateur est en base de donnï¿½es
      * @param Member $Member
-     * @return boolean True or False si l'utilisateur est trouvé en base de données
+     * @return boolean True or False si l'utilisateur est trouvï¿½ en base de donnï¿½es
      */
     abstract public function matchMember(Member $member);
 
 
     /**
-     * Méthode permettant de récupérer un utilisateur via son login et son password
+     * Mï¿½thode permettant de rï¿½cupï¿½rer un utilisateur via son login et son password
      * @param $login
      * @param $password
      * @return $Member Member
@@ -26,37 +27,37 @@ abstract class MemberManager extends Manager
     abstract public function getMemberUsingLoginAndPassword($login, $password);
 
     /**
-     * Méthode retournant un utilisateur précis
-     * @param $id int L'identifiant de l'utilisateur à récupérer
+     * Mï¿½thode retournant un utilisateur prï¿½cis
+     * @param $id int L'identifiant de l'utilisateur ï¿½ rï¿½cupï¿½rer
      * @return Member L'utilisateur
      */
     abstract public function getUnique($id);
 
     /**
-     * Méthode retournant une liste d'utilisateurs demandés
-     * @param $debut int Le premier utilisateur à sélectionner
-     * @param $limite int Le nombre d'utilisateurs à sélectionner
-     * @return array La liste des utilisateurs. Chaque entrée est une instance de Member
+     * Mï¿½thode retournant une liste d'utilisateurs demandï¿½s
+     * @param $debut int Le premier utilisateur ï¿½ sï¿½lectionner
+     * @param $limite int Le nombre d'utilisateurs ï¿½ sï¿½lectionner
+     * @return array La liste des utilisateurs. Chaque entrï¿½e est une instance de Member
      */
     abstract public function getList($debut = -1, $limite = -1);
 
     /**
-     * Méthode permettant d'ajouter un utiilsateur.
-     * @param $Member Member L'utilisateur à ajouter
+     * Mï¿½thode permettant d'ajouter un utiilsateur.
+     * @param $Member Member L'utilisateur ï¿½ ajouter
      * @return void
      */
     abstract protected function add(Member $Member);
 
     /**
-     * Méthode permettant de modifier un utilisateur.
-     * @param $Member Member l'utiliasteur à modifier
+     * Mï¿½thode permettant de modifier un utilisateur.
+     * @param $Member Member l'utiliasteur ï¿½ modifier
      * @return void
      */
     abstract protected function modify(Member $Member);
 
     /**
-     * Méthode permettant d'enregistrer un utilisateur.
-     * @param $Member Member l'utilisateur à enregistrer
+     * Mï¿½thode permettant d'enregistrer un utilisateur.
+     * @param $Member Member l'utilisateur ï¿½ enregistrer
      * @see self::add()
      * @see self::modify()
      * @return void
@@ -72,12 +73,12 @@ abstract class MemberManager extends Manager
         }
         else
         {
-            throw new \RuntimeException('L\'utilisateur doit êter validé pour être enregistré');
+            throw new \RuntimeException('L\'utilisateur doit ï¿½ter validï¿½ pour ï¿½tre enregistrï¿½');
         }
     }
 
     /**
-     * Méthode renvoyant le nombre d'utilisateurs total.
+     * Mï¿½thode renvoyant le nombre d'utilisateurs total.
      * @return int
      */
     abstract public function count();

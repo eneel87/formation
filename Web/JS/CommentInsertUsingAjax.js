@@ -88,8 +88,6 @@ function insertComment(e)
             }
 
             $textarea.val('');
-
-            //window.last_insert_id = $('fieldset:first').attr('data-comment-id');
         }
     });
 }
@@ -293,8 +291,6 @@ function event_submitUpdateManager(e, url, content)
             formulaire_valid = true;
         }
 
-
-
     });
 }
 
@@ -331,150 +327,8 @@ function commentStreamUpdate(last_insert_id, news_id )
                     $Form.after(data.comments[key]);
                 }
             }
-
-            //$Form.after(data.html_value);
         }
     });
 }
 
-/*function buildComments(comments)
-{
-    for(var i=0; i<comments.length; i++)
-    {
-        buildComment(comments[i]);
-    }
-}
-
-function buildComment(comment)
-{
-    var $Form = $("#insertCommentForm");
-    var $Main = $('#main');
-    var $Fieldset = $Main.children('fieldset:first');
-
-    if($Form.length==0)
-    {
-        if($Fieldset.length==0)
-        {
-            $Main.append(
-                $('<fieldset></fieldset>')
-                    .attr('data-comment-id', comment.id)
-                    .append(
-                    $('<legend></legend>')
-                        .append(
-                        'Posté par '
-                    )
-                        .append(
-                        $('<strong></strong>')
-                            .append(
-                            comment.Membre.membre_login
-                        )
-                    )
-                        .append(
-                        ' le ' +
-                        comment.dateAjout +
-                        ' '
-                    )
-                )
-                    .append(
-                    $('<p></p>')
-                        .append(
-                        comment.contenu
-                    )
-                )
-            );
-        }
-        else
-        {
-            if($('fieldset[data-comment-id="'+comment.id+'"]').length==0)
-            {
-                $Fieldset.before(
-                    $('<fieldset></fieldset>')
-                        .attr('data-comment-id', comment.id)
-                        .append(
-                        $('<legend></legend>')
-                            .append(
-                            'Posté par '
-                        )
-                            .append(
-                            $('<strong></strong>')
-                                .append(
-                                comment.Membre.membre_login
-                            )
-                        )
-                            .append(
-                            ' le ' +
-                            comment.dateAjout +
-                            ' '
-                        )
-                    )
-                        .append(
-                        $('<p></p>')
-                            .append(
-                            comment.contenu
-                        )
-                    )
-                );
-            }
-        }
-    }
-    else
-    {
-        if($('fieldset[data-comment-id="'+comment.id+'"]').length==0)
-        {
-            $Form.after(
-                $('<fieldset></fieldset>')
-                    .attr('data-comment-id', comment.id)
-                    .append(
-                    $('<legend></legend>')
-                        .append(
-                        'Posté par '
-                    )
-                        .append(
-                        $('<strong></strong>')
-                            .append(
-                            comment.Membre.membre_login
-                        )
-                    )
-                        .append(
-                        ' le ' +
-                        comment.dateAjout +
-                        ' '
-                    )
-                )
-                    .append(
-                    $('<p></p>')
-                        .append(
-                        comment.contenu
-                    )
-                )
-            );
-
-            if(comment.modif_authorisation)
-            {
-                $('fieldset[data-comment-id="'+comment.id+'"]')
-                    .children('legend')
-                    .append(
-                    $('<a></a>')
-                        .attr('href', comment.update_url)
-                        .attr('data-ajax-update', comment.ajax_update_url)
-                        .append(
-                        'Modifier'
-                    )
-                )
-                    .append(
-                    ' | '
-                )
-                    .append(
-                    $('<a></a>')
-                        .attr('href', comment.delete_url)
-                        .attr('data-ajax-delete', comment.ajax_delete_url)
-                        .append(
-                        'Supprimer'
-                    )
-                );
-            }
-        }
-    }
-}
-*/
 

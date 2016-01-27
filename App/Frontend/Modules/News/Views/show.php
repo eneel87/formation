@@ -12,7 +12,7 @@
 <h2 data-news-id="<?=$news->id()?>"><?= htmlspecialchars($news->titre()) ?></h2>
 <?php
 
-  if(($user->isAuthenticated() && $news->auteurId() == $user->getAttribute('admin')->id()) || ($user->isAuthenticated() && $user->getAttribute('admin')->level() == \Model\MemberManager::ADMINISTRATOR))
+  if(($user->isAuthenticated() && $news->auteurId() == $user->getAttribute('user')->id()) || ($user->isAuthenticated() && $user->getAttribute('user')->level() == \Model\MemberManager::ADMINISTRATOR))
   {
     ?>
     <p><a href="<?=$router->getUrl('Backend', 'News', 'update', array('id' => $news->id())) ?>"><em>Modifier la News</em></a></p>
@@ -54,7 +54,7 @@ foreach ($comments as $comment)
       {
         echo $dateAjoutFormated.'<em> (Modifié le '.$dateModifFormated.')</em>';
       }
-      if (($user->isAuthenticated() && $comment->Membre()->id() == $user->getAttribute('admin')->id()) || ($user->isAuthenticated() && $user->getAttribute('admin')->level() == \Model\MemberManager::ADMINISTRATOR)) { ?>
+      if (($user->isAuthenticated() && $comment->Membre()->id() == $user->getAttribute('user')->id()) || ($user->isAuthenticated() && $user->getAttribute('user')->level() == \Model\MemberManager::ADMINISTRATOR)) { ?>
       <a href="<?=$router->getUrl('Backend', 'News', 'updateComment', array('comment_id' => $comment->id())) ?>" data-ajax-update="<?=$router->getUrl('Backend', 'News', 'updateCommentUsingAjax', array('comment_id' => $comment->id())) ?>">Modifier</a> |
       <a href="<?=$router->getUrl('Backend', 'News', 'deleteComment', array('comment_id' => $comment->id())) ?>" data-ajax-delete="<?=$router->getUrl('Backend', 'News', 'deleteCommentUsingAjax', array('comment_id' => $comment->id())) ?>">Supprimer</a>
     <?php } ?>

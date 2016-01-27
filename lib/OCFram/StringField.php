@@ -4,17 +4,13 @@ namespace OCFram;
 class StringField extends Field
 {
     protected $maxLength;
+    protected $type = 'text';
 
     public function buildWidget()
     {
         $widget = '';
 
-        if (!empty($this->errorMessage))
-        {
-            $widget .= $this->errorMessage.'<br />';
-        }
-
-        $widget .= '<label>'.$this->label.'</label><input type="text" name="'.$this->name.'"';
+        $widget .= '<label>'.$this->label.'</label><input type="'.$this->type.'" name="'.$this->name.'"';
 
         if (!empty($this->value))
         {
@@ -26,7 +22,14 @@ class StringField extends Field
             $widget .= ' maxlength="'.$this->maxLength.'"';
         }
 
-        return $widget .= ' />';
+        $widget .= ' />';
+
+        if (!empty($this->errorMessage))
+        {
+            $widget .= '<p style="color:red">'.$this->errorMessage.'</p>';
+        }
+
+        return $widget;
     }
 
     public function setMaxLength($maxLength)
@@ -39,7 +42,17 @@ class StringField extends Field
         }
         else
         {
-            throw new \RuntimeException('La longueur maximale doit être un nombre supérieur à 0');
+            throw new \RuntimeException('La longueur maximale doit ï¿½tre un nombre supï¿½rieur ï¿½ 0');
         }
+    }
+
+    public function setType($type)
+    {
+        if(!is_string($type))
+        {
+            throw new \RuntimeException('Le type du champ doit Ãªtre une chaÃ®ne de caractÃ¨res');
+        }
+
+        $this->type = $type;
     }
 }

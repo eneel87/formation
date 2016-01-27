@@ -1,12 +1,12 @@
 <?php
 namespace App\Backend\Modules\Member;
 
+use FormBuilder\AdminFormBuilder;
 use Model\MemberManager;
 use OCFram\Application;
 use \OCFram\BackController;
 use \OCFram\HTTPRequest;
 use \Entity\Member;
-use \FormBuilder\MemberFormBuilder;
 use \OCFram\FormHandler;
 use OCFram\Router;
 
@@ -19,7 +19,7 @@ class MemberController extends BackController
     {
         parent::__construct($app, $module, $action);
 
-        if ($this->app->user()->getAttribute('admin')->level() != MemberManager::ADMINISTRATOR)
+        if ($this->app->user()->getAttribute('user')->level() != MemberManager::ADMINISTRATOR)
         {
             $this->app->httpResponse()->redirect('/admin/');
         }
@@ -80,7 +80,7 @@ class MemberController extends BackController
             }
         }
 
-        $formBuilder = new MemberFormBuilder($member);
+        $formBuilder = new AdminFormBuilder($member);
         $formBuilder->build();
 
         $form = $formBuilder->form();
@@ -90,9 +90,9 @@ class MemberController extends BackController
 
         if ($formHandler->process())
         {
-            if($member->id()== $this->app->user()->getAttribute('admin')->id())
+            if($member->id()== $this->app->user()->getAttribute('user')->id())
             {
-                $this->app->user()->setAttribute('admin', $member);
+                $this->app->user()->setAttribute('user', $member);
             }
             // Ici ne résident plus que les opérations à effectuer une fois l'entité du formulaire enregistrée
             // (affichage d'un message informatif, redirection, etc.).
@@ -110,7 +110,7 @@ class MemberController extends BackController
 
         $this->managers->getManagerOf('Member')->delete($MemberId);
 
-        if($this->app->user()->getAttribute('admin')->id() == $MemberId)
+        if($this->app->user()->getAttribute('user')->id() == $MemberId)
         {
             $this->app->httpResponse()->redirect('/admin/deconnexion.html');
         }

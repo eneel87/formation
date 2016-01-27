@@ -27,7 +27,7 @@ class NewsController extends BackController
 
     $this->page->addVar('router', new Router());
 
-    $Member = $this->app->user()->getAttribute('admin');
+    $Member = $this->app->user()->getAttribute('user');
 
     if(!$this->app->httpRequest()->getExists('id'))
     {
@@ -54,28 +54,35 @@ class NewsController extends BackController
       }
     }
   }
-  public function executeIndex(HTTPRequest $request)
+  public function executeIndex(HTTPRequest $Request)
   {
+    $User = $this->app->user()->getAttribute('user');
+
+    if(!$User || $User->level()> MemberManager::WRITER)
+    {
+      $this->app->user()->setFlash('Vous n\'avez pas les droits nécessaires pour accéder à cette partie');
+      $this->app->httpResponse()->redirect('.');
+    }
+
     $this->run();
     $this->page->addVar('title', 'Gestion des news');
 
     $ManagerNews = $this->managers->getmanagerof('news');
     $MemberManager = $this->managers->getmanagerof('member');
 
-    if($this->app->user()->getAttribute('admin')->level()== $MemberManager::ADMINISTRATOR)
+    if($this->app->user()->getAttribute('user')->level()== $MemberManager::ADMINISTRATOR)
     {
       $this->page->addvar('listeNews', $ManagerNews->getlist());
       $this->page->addvar('nombreNews', $ManagerNews->count());
+      return;
     }
-    else
-    {
-      $nombreNews = $ManagerNews->countUsingMemberId($this->app->user()->getAttribute('admin')->id());
 
-      if($nombreNews)
-      {
-        $this->page->addvar('nombreNews', $nombreNews);
-        $this->page->addvar('listeNews', $ManagerNews->getListUsingMemberId($this->app->user()->getAttribute('admin')->id()));
-      }
+    $nombreNews = $ManagerNews->countUsingMemberId($this->app->user()->getAttribute('user')->id());
+
+    if($nombreNews)
+    {
+      $this->page->addvar('nombreNews', $nombreNews);
+      $this->page->addvar('listeNews', $ManagerNews->getListUsingMemberId($this->app->user()->getAttribute('user')->id()));
     }
   }
 
@@ -114,7 +121,7 @@ class NewsController extends BackController
 
     $comment_id = $request->getData('comment_id');
     $Comment = $ManagerComment->getUnique($comment_id);
-    $Membre = $this->app->user()->getAttribute('admin');
+    $Membre = $this->app->user()->getAttribute('user');
 
     if(!$Comment)
     {
@@ -159,7 +166,7 @@ class NewsController extends BackController
     if ($request->method() == 'POST')
     {
       $news = new News([
-          'auteurId' => $this->app->user()->getAttribute('admin')->id(),
+          'auteurId' => $this->app->user()->getAttribute('user')->id(),
           'titre' => $request->postData('titre'),
           'contenu' => $request->postData('contenu')
       ]);
@@ -209,7 +216,7 @@ class NewsController extends BackController
 
     $comment_id = $request->getData('comment_id');
     $Comment = $ManagerComment->getUnique($comment_id);
-    $Membre = $this->app->user()->getAttribute('admin');
+    $Membre = $this->app->user()->getAttribute('user');
 
     if(!$Comment)
     {
@@ -247,7 +254,7 @@ class NewsController extends BackController
 
     $Comment = new Comment([
         'newsId' => $request->getData('news_id'),
-        'auteurId' => $this->app->user()->getAttribute('admin')->id(),
+        'auteurId' => $this->app->user()->getAttribute('user')->id(),
         'contenu' => $request->postData('contenu')
     ]);
 
@@ -306,7 +313,7 @@ class NewsController extends BackController
     {
       $Comment = new Comment([
           'newsId' => $request->getData('news_id'),
-          'auteurId' => $this->app->user()->getAttribute('admin')->id(),
+          'auteurId' => $this->app->user()->getAttribute('user')->id(),
           'contenu' => $request->postData('contenu')
       ]);
     }
@@ -355,7 +362,7 @@ class NewsController extends BackController
  {
    $ManagerComment = $this->managers->getManagerof('Comments');
    $Comment = $ManagerComment->getUnique($Request->getData('comment_id'));
-   $Membre = $this->app->user()->getAttribute('admin');
+   $Membre = $this->app->user()->getAttribute('user');
 
    $this->page->setTemplate('jsonLayout.php');
 
@@ -373,7 +380,7 @@ class NewsController extends BackController
 
    $CommentPosted = new Comment();
    $CommentPosted->setId($Request->getData('comment_id'));
-   $CommentPosted->setAuteurId($this->app->user()->getAttribute('admin')->id());
+   $CommentPosted->setAuteurId($this->app->user()->getAttribute('user')->id());
    $CommentPosted->setContenu($Request->postData('contenu'));
 
    $FormBuilder = new CommentFormBuilder($CommentPosted);
@@ -418,7 +425,7 @@ class NewsController extends BackController
       return;
     }
 
-    $Membre = $this->app->user()->getAttribute('admin');
+    $Membre = $this->app->user()->getAttribute('user');
 
     if($Comment->auteurId()!= $Membre->id() && $Membre->level() != MemberManager::ADMINISTRATOR)
     {
