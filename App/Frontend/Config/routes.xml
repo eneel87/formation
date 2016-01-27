@@ -4,6 +4,8 @@
   <route url="/news-([0-9]+)\.html" module="News" action="show" vars="id" pattern="/news-%id%.html"/>
   <route url="/afficher-device\.html" module="Device" action="index" />
 
+  <route url="/member-([0-9]+)\.html" module="Member" action="show" vars="member_id" pattern="/member-%member_id%.html" />
+
   <route url="/inscription\.html" module="Connexion" action="inscription" pattern="/inscription.html"/>
   <route url="/connexion\.html" module="Connexion" action="index" pattern="/connexion.html"/>
 

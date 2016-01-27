@@ -17,6 +17,7 @@
   <header>
     <h1><a href="/">Mon super site</a></h1>
     <p>Comment ça, il n'y a presque rien ?</p>
+      <?= $member_form ?>
   </header>
 
   <?= $menu ?>

@@ -28,6 +28,7 @@ trait Run
                 }
 
                     $menu.= '<li><a href="'.$Router->getUrl('Backend', 'Connexion', 'deconnexion').'">Déconnexion de '.htmlspecialchars($Membre->login()).'</a></li>';
+
                 $menu.= '</ul>';
             $menu.= '</nav>';
 
@@ -45,5 +46,11 @@ trait Run
 
             $this->page->addVar('menu', $menu);
         }
+
+        $member_form = '<form class="find_member_form" action="#" method="post">';
+        $member_form.= '<input type="text" name="member_login" placeholder="Cherchez un Membre" /> ';
+        $member_form.= '<input type="submit" value="Chercher">';
+
+        $this->page->addVar('member_form', $member_form);
     }
 }

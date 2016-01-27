@@ -95,7 +95,7 @@ class MemberManagerPDO extends MemberManager
 
     public function getUnique($id)
     {
-        $sql = 'SELECT FMC_id as id, FMC_login as login, FMC_password as password, FMC_fk_FMY as level
+        $sql = 'SELECT *
                 FROM T_FOR_memberc
                 WHERE FMC_id = :id';
 
@@ -103,9 +103,19 @@ class MemberManagerPDO extends MemberManager
         $requete->bindvalue(':id', (int) $id, \PDO::PARAM_INT);
         $requete->execute();
 
-        $requete->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Entity\Member');
+        $data = $requete->fetch();
 
-        return $Member = $requete->fetch();
+        $Member = new Member();
+        $Member->setId($data['FMC_id'])
+            ->setLogin($data['FMC_login'])
+            ->setPassword($data['FMC_password'])
+            ->setEmail($data['FMC_email'])
+            ->setDateAjout(new \DateTime($data['FMC_dateadd']))
+            ->setDateModif(new \DateTime($data['FMC_dateupdate']));
+
+        $requete->closeCursor();
+
+        return $Member;
     }
 
     public function getList($debut = -1, $limite = -1)

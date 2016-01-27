@@ -3,6 +3,9 @@ namespace OCFram;
 
 class HTTPResponse extends ApplicationComponent
 {
+
+  use \OCFram\Run;
+
   protected $page;
 
   public function addHeader($header)
@@ -19,6 +22,7 @@ class HTTPResponse extends ApplicationComponent
   public function redirect404()
   {
     $this->page = new Page($this->app);
+    $this->run();
     $this->page->addVar('router', new Router());
     $this->page->setContentFile(__DIR__.'/../../Errors/404.html');
     
