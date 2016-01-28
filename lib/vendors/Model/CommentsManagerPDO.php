@@ -3,6 +3,7 @@ namespace Model;
 
 use \Entity\Comment;
 use \Entity\Member;
+use Entity\News;
 
 class CommentsManagerPDO extends CommentsManager
 {
@@ -45,6 +46,40 @@ class CommentsManagerPDO extends CommentsManager
       $Comment->setDateAjout(new \DateTime($data['FCC_dateadd']));
       $Comment->setDateModif(new \DateTime($data['FCC_dateupdate']));
       $Comment->setMembre(new Member(array('login'=>$data['FMC_login'], 'id'=>$data['FMC_id'])));
+
+      $Comments_a[]=$Comment;
+    }
+
+    return $Comments_a;
+  }
+
+  public function getCommentsUsingMemberId($member_id)
+  {
+    $sql = 'SELECT *
+            FROM T_FOR_commentc
+            INNER JOIN T_FOR_newsc ON FCC_fk_FNC = FNC_id
+            WHERE FCC_fk_FMC = :member_id
+            ORDER BY FCC_id DESC';
+
+    $requete = $this->dao->prepare($sql);
+
+    $requete->bindValue(':member_id', $member_id, \PDO::PARAM_INT);
+    $requete->execute();
+
+    $Comments_a = array();
+
+    while($data = $requete->fetch())
+    {
+      $Comment = new Comment();
+      $Comment->setAuteurId($data['FCC_fk_FMC']);
+      $Comment->setId($data['FCC_id']);
+      $Comment->setContenu($data['FCC_content']);
+      $Comment->setNewsId($data['FCC_fk_FNC']);
+      $Comment->setDateAjout(new \DateTime($data['FCC_dateadd']));
+      $Comment->setDateModif(new \DateTime($data['FCC_dateupdate']));
+      $Comment->News = new News(array(
+        'titre' => $data['FNC_title']
+      ));
 
       $Comments_a[]=$Comment;
     }
@@ -192,5 +227,31 @@ class CommentsManagerPDO extends CommentsManager
     $requete = $this->dao->prepare($sql);
     $requete->bindValue('newsId', $newsId, \PDO::PARAM_INT);
     $requete->execute();
+  }
+
+  public function countUsingMemberId($member_id)
+  {
+    $sql = 'SELECT COUNT(*)
+            FROM T_FOR_commentc
+            WHERE FCC_fk_FMC = :member_id';
+
+    $requete = $this->dao->prepare($sql);
+    $requete->bindValue('member_id', (int) $member_id, \PDO::PARAM_INT);
+    $requete->execute();
+
+    return $requete->fetchColumn();
+  }
+
+  public function countUsingNewsId($news_id)
+  {
+    $sql = 'SELECT COUNT(*)
+            FROM T_FOR_commentc
+            WHERE FCC_fk_FNC = :news_id';
+
+    $requete = $this->dao->prepare($sql);
+    $requete->bindValue(':news_id', (int) $news_id, \PDO::PARAM_INT);
+    $requete->execute();
+
+    return $requete->fetchColumn();
   }
 }

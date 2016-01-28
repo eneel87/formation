@@ -97,10 +97,11 @@ class MemberManagerPDO extends MemberManager
     {
         $sql = 'SELECT *
                 FROM T_FOR_memberc
+                INNER JOIN T_FOR_membery ON FMC_fk_FMY = FMY_id
                 WHERE FMC_id = :id';
 
         $requete = $this->dao->prepare($sql);
-        $requete->bindvalue(':id', (int) $id, \PDO::PARAM_INT);
+        $requete->bindValue(':id', (int) $id, \PDO::PARAM_INT);
         $requete->execute();
 
         $data = $requete->fetch();
@@ -111,7 +112,8 @@ class MemberManagerPDO extends MemberManager
             ->setPassword($data['FMC_password'])
             ->setEmail($data['FMC_email'])
             ->setDateAjout(new \DateTime($data['FMC_dateadd']))
-            ->setDateModif(new \DateTime($data['FMC_dateupdate']));
+            ->setDateModif(new \DateTime($data['FMC_dateupdate']))
+            ->setLevelNom($data['FMY_type']);
 
         $requete->closeCursor();
 

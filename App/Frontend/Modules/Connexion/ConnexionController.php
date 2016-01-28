@@ -1,6 +1,8 @@
 <?php
 namespace App\Frontend\Modules\Connexion;
 
+use Entity\Alertc;
+use Entity\Alertd;
 use Entity\Member;
 use FormBuilder\ConnexionFormBuilder;
 use \FormBuilder\MemberFormBuilder;
@@ -95,5 +97,46 @@ class ConnexionController extends BackController
 
         $this->page->addVar('form', $Form->createView());
         $this->page->addVar('router', $Router);
+    }
+
+    public function executeUnsubscribe(HTTPRequest $Request)
+    {
+        $this->run();
+        $this->page->addVar('title', 'Désinscription');
+
+        if($Request->method()=='POST')
+        {
+            $unsubscribe_message = $Request->postData('unsubscribe_message');
+
+            if(!$unsubscribe_message)
+            {
+                $this->page->addVar('erreur', 'Votre message ne doit pas être vide.');
+                return;
+            }
+
+            $FORManager = $this->managers->getManagerOf('FOR');
+            $Characteristicc = $FORManager->getCharacteristiccUsingName('unsubscribe_message');
+
+            $FVC_id = $FORManager->addCharacteristicvaluec($Characteristicc->id(), $unsubscribe_message);
+
+            $Alertc = new Alertc(array(
+                'FAC_fk_FAY' => 1,
+                'FAC_fk_FAE' => 1
+            ));
+
+            $FAC_id = $FORManager->addAlertc($Alertc);
+
+            $Alertd = new Alertd(array(
+                'FAD_fk_FAC' => $FAC_id,
+                'FAD_fk_FHC' => $Characteristicc->id(),
+                'FAD_fk_FVC' => $FVC_id
+            ));
+
+            $FORManager->addAlertd($Alertd);
+
+            $this->app->user()->setFlash('Votre demande a bien été enregistrée');
+            $this->app->httpResponse()->redirect('/mon-compte.html');
+        }
+
     }
 }

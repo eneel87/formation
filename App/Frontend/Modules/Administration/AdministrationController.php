@@ -38,6 +38,11 @@ class AdministrationController extends BackController
             $links.= '<li><a href="'.$Router->getUrl('Backend', 'News', 'index').'">Gestion des news</a></li>';
         }
 
+        if($User->level()>MemberManager::ADMINISTRATOR)
+        {
+            $links.= '<li><a href="'.$Router->getUrl('Frontend', 'Connexion', 'unsubscribe').'">Formulaire de désincription</a></li>';
+        }
+
         $links.= '<li><a href="#">Modifier mes informations <em>(Work in Progress)</em></a></li>';
         $links.= '</ul>';
 

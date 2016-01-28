@@ -47,9 +47,10 @@ trait Run
             $this->page->addVar('menu', $menu);
         }
 
-        $member_form = '<form class="find_member_form" action="#" method="post">';
-        $member_form.= '<input type="text" name="member_login" placeholder="Cherchez un Membre" /> ';
+        $member_form = '<form class="find_member_form" action="'.$Router->getUrl('Frontend', 'Member', 'findMember').'" method="post">';
+        $member_form.= '<input type="text" name="member_login" placeholder="Chercher un Membre" /> ';
         $member_form.= '<input type="submit" value="Chercher">';
+        $member_form.= '</form>';
 
         $this->page->addVar('member_form', $member_form);
     }

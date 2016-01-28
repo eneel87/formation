@@ -8,6 +8,9 @@
 
   <route url="/inscription\.html" module="Connexion" action="inscription" pattern="/inscription.html"/>
   <route url="/connexion\.html" module="Connexion" action="index" pattern="/connexion.html"/>
+  <route url="/unsubscribe-form\.html" module="Connexion" action="unsubscribe" pattern="/unsubscribe-form.html" />
+
+  <route url="/find-member\.html" module="Member" action="findMember" pattern="/find-member.html" />
 
   <route url="/comment-stream-updating.php" module="News" action="commentStreamUpdatingUsingAjax" />
 
